@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createTransaction, deleteTransaction, listTransactions, updateTransaction } from '../api/transactionApi';
 import TransactionForm from '../components/forms/TransactionForm.jsx';
+import TransactionDetailModal from '../components/modals/TransactionDetailModal.jsx';
 import TransactionTable from '../components/tables/TransactionTable.jsx';
 import { useCategories } from '../hooks/useCategories.js';
 
 export default function TransactionManager({ type, title }) {
   const { categories, addCategory } = useCategories(type);
   const [entries, setEntries] = useState([]);
-  const [editingEntry, setEditingEntry] = useState(null);
+  const [selectedEntry, setSelectedEntry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadEntries = async () => {
+  const loadEntries = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -21,19 +22,19 @@ export default function TransactionManager({ type, title }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [title, type]);
 
   useEffect(() => {
     loadEntries();
-  }, [type]);
+  }, [loadEntries]);
 
   const submit = async (payload) => {
-    if (editingEntry) {
-      await updateTransaction(type, editingEntry.id, payload);
-      setEditingEntry(null);
-    } else {
-      await createTransaction(type, payload);
-    }
+    await createTransaction(type, payload);
+    await loadEntries();
+  };
+
+  const saveFromModal = async (id, payload) => {
+    await updateTransaction(type, id, payload);
     await loadEntries();
   };
 
@@ -51,14 +52,19 @@ export default function TransactionManager({ type, title }) {
         categories={categories}
         onCreateCategory={addCategory}
         onSubmit={submit}
-        editingEntry={editingEntry}
-        onCancel={() => setEditingEntry(null)}
       />
       <div className="panel">
         <h2>{title} entries</h2>
         {error && <p className="error-message">{error}</p>}
-        {loading ? <div className="page-loader">Loading...</div> : <TransactionTable entries={entries} onEdit={setEditingEntry} onDelete={remove} />}
+        {loading ? <div className="page-loader">Loading...</div> : <TransactionTable entries={entries} onView={setSelectedEntry} onDelete={remove} />}
       </div>
+      <TransactionDetailModal
+        entry={selectedEntry}
+        categories={categories}
+        type={type}
+        onClose={() => setSelectedEntry(null)}
+        onSave={saveFromModal}
+      />
     </section>
   );
 }

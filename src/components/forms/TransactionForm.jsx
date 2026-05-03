@@ -1,6 +1,8 @@
-import { Save, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Save } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import CategoryInlineCreate from './CategoryInlineCreate.jsx';
+import CustomFieldInputs from './CustomFieldInputs.jsx';
+import { customValuesMapToPayload } from '../../utils/customFields.js';
 
 const emptyForm = {
   date: new Date().toISOString().slice(0, 10),
@@ -9,29 +11,24 @@ const emptyForm = {
   amount: '',
 };
 
-export default function TransactionForm({ type, categories, onCreateCategory, onSubmit, editingEntry, onCancel }) {
+export default function TransactionForm({ type, categories, onCreateCategory, onSubmit }) {
   const [form, setForm] = useState(emptyForm);
+  const [customValues, setCustomValues] = useState({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (editingEntry) {
-      setForm({
-        date: editingEntry.date,
-        categoryId: editingEntry.categoryId,
-        description: editingEntry.description || '',
-        amount: String(editingEntry.amount),
-      });
-    } else {
-      setForm(emptyForm);
-    }
-  }, [editingEntry]);
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id === form.categoryId),
+    [categories, form.categoryId],
+  );
 
   const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+  const updateCustomField = (fieldId, value) => setCustomValues((current) => ({ ...current, [fieldId]: value }));
 
   const handleCreateCategory = async (name) => {
     const category = await onCreateCategory(name);
     updateField('categoryId', category.id);
+    setCustomValues({});
   };
 
   const submit = async (event) => {
@@ -44,8 +41,10 @@ export default function TransactionForm({ type, categories, onCreateCategory, on
         categoryId: form.categoryId,
         description: form.description.trim() || null,
         amount: Number(form.amount),
+        customFieldValues: customValuesMapToPayload(selectedCategory, customValues),
       });
-      if (!editingEntry) setForm(emptyForm);
+      setForm(emptyForm);
+      setCustomValues({});
     } catch (err) {
       setError(err.response?.data?.detail || `Unable to save ${type} entry`);
     } finally {
@@ -56,12 +55,7 @@ export default function TransactionForm({ type, categories, onCreateCategory, on
   return (
     <form className="panel form-grid" onSubmit={submit}>
       <div className="form-header">
-        <h2>{editingEntry ? 'Edit' : 'Add'} {type}</h2>
-        {editingEntry && (
-          <button className="ghost-button" type="button" onClick={onCancel}>
-            <X size={16} /> Cancel
-          </button>
-        )}
+        <h2>Add {type}</h2>
       </div>
       <label>
         Date
@@ -69,7 +63,14 @@ export default function TransactionForm({ type, categories, onCreateCategory, on
       </label>
       <label>
         Category
-        <select value={form.categoryId} onChange={(event) => updateField('categoryId', event.target.value)} required>
+        <select
+          value={form.categoryId}
+          onChange={(event) => {
+            updateField('categoryId', event.target.value);
+            setCustomValues({});
+          }}
+          required
+        >
           <option value="">Select category</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>{category.name}</option>
@@ -85,6 +86,11 @@ export default function TransactionForm({ type, categories, onCreateCategory, on
         Description
         <input value={form.description} onChange={(event) => updateField('description', event.target.value)} placeholder="Optional note" />
       </label>
+      <CustomFieldInputs
+        fields={selectedCategory?.customFields || []}
+        values={customValues}
+        onChange={updateCustomField}
+      />
       {error && <p className="error-message span-2">{error}</p>}
       <button className="primary-button span-2" type="submit" disabled={saving}>
         <Save size={17} /> {saving ? 'Saving...' : 'Save entry'}
