@@ -58,6 +58,17 @@ a { color: inherit; }
 .main-content { padding: 28px; }
 .page-stack { display: grid; gap: 22px; }
 .page-header { display: flex; justify-content: space-between; align-items: center; }
+.dashboard-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dashboard-filter span {
+  color: #5d6658;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.dashboard-filter select { min-width: 170px; }
 
 .panel, .summary-card {
   background: #ffffff;
@@ -193,6 +204,7 @@ th { color: #5b6557; font-size: 0.86rem; text-transform: uppercase; }
   padding: 20px;
   box-shadow: 0 22px 60px rgba(23, 32, 23, 0.22);
 }
+.compact-modal { width: min(520px, 100%); }
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -219,6 +231,9 @@ th { color: #5b6557; font-size: 0.86rem; text-transform: uppercase; }
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid #dce3d7; }
   .sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page-header { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .dashboard-filter { width: 100%; justify-content: space-between; }
+  .dashboard-filter select { min-width: 150px; }
   .summary-grid, .chart-grid, .form-grid { grid-template-columns: 1fr; }
   .custom-field-row { grid-template-columns: 1fr; }
   .span-2, .form-header { grid-column: auto; }
