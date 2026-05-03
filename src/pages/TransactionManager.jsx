@@ -6,7 +6,7 @@ import TransactionTable from '../components/tables/TransactionTable.jsx';
 import { useCategories } from '../hooks/useCategories.js';
 
 export default function TransactionManager({ type, title }) {
-  const { categories, addCategory } = useCategories(type);
+  const { categories } = useCategories(type);
   const [entries, setEntries] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,6 @@ export default function TransactionManager({ type, title }) {
       <TransactionForm
         type={type}
         categories={categories}
-        onCreateCategory={addCategory}
         onSubmit={submit}
       />
       <div className="panel">

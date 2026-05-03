@@ -1,6 +1,5 @@
 import { Save } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import CategoryInlineCreate from './CategoryInlineCreate.jsx';
 import CustomFieldInputs from './CustomFieldInputs.jsx';
 import { customValuesMapToPayload } from '../../utils/customFields.js';
 
@@ -11,7 +10,7 @@ const emptyForm = {
   amount: '',
 };
 
-export default function TransactionForm({ type, categories, onCreateCategory, onSubmit }) {
+export default function TransactionForm({ type, categories, onSubmit }) {
   const [form, setForm] = useState(emptyForm);
   const [customValues, setCustomValues] = useState({});
   const [saving, setSaving] = useState(false);
@@ -24,12 +23,6 @@ export default function TransactionForm({ type, categories, onCreateCategory, on
 
   const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
   const updateCustomField = (fieldId, value) => setCustomValues((current) => ({ ...current, [fieldId]: value }));
-
-  const handleCreateCategory = async (name) => {
-    const category = await onCreateCategory(name);
-    updateField('categoryId', category.id);
-    setCustomValues({});
-  };
 
   const submit = async (event) => {
     event.preventDefault();
@@ -77,7 +70,6 @@ export default function TransactionForm({ type, categories, onCreateCategory, on
           ))}
         </select>
       </label>
-      <CategoryInlineCreate onCreate={handleCreateCategory} />
       <label>
         Amount
         <input type="number" min="0.01" step="0.01" value={form.amount} onChange={(event) => updateField('amount', event.target.value)} required />
