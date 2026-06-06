@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import ExpensePage from './pages/ExpensePage.jsx';
 import IncomePage from './pages/IncomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import McpPage from './pages/McpPage.jsx';
 import SignupPage from './pages/SignupPage.jsx';
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/income" element={<IncomePage />} />
           <Route path="/expenses" element={<ExpensePage />} />
           <Route path="/categories" element={<CategoryPage />} />
+          <Route path="/mcp" element={<McpPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

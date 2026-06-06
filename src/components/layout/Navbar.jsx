@@ -1,4 +1,4 @@
-import { BarChart3, FolderTree, LogOut, ReceiptText, Sprout, WalletCards } from 'lucide-react';
+import { BarChart3, FolderTree, KeyRound, LogOut, ReceiptText, Sprout, WalletCards } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -7,6 +7,7 @@ const links = [
   { to: '/income', label: 'Income', icon: WalletCards },
   { to: '/expenses', label: 'Expenses', icon: ReceiptText },
   { to: '/categories', label: 'Categories', icon: FolderTree },
+  { to: '/mcp', label: 'MCP', icon: KeyRound },
 ];
 
 export default function Navbar() {

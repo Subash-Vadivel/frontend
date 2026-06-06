@@ -99,6 +99,8 @@ a { color: inherit; }
 .form-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
 .form-header h2 { margin: 0; }
 .span-2 { grid-column: 1 / -1; }
+.compact-form { align-items: end; }
+.form-action { align-self: end; }
 label { display: grid; gap: 7px; color: #394334; font-weight: 700; }
 input, select {
   width: 100%;
@@ -157,6 +159,20 @@ th { color: #5b6557; font-size: 0.86rem; text-transform: uppercase; }
   min-width: 150px;
 }
 .category-pill small { color: #63745d; }
+.mcp-endpoint-panel, .mcp-created-key {
+  display: grid;
+  gap: 12px;
+}
+.mcp-endpoint-panel code, .mcp-created-key code, td code {
+  background: #f2f5ef;
+  border: 1px solid #dce3d7;
+  border-radius: 8px;
+  color: #263421;
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 8px 10px;
+}
 .type-badge {
   display: inline-flex;
   align-items: center;
