@@ -25,7 +25,7 @@ export default function DateRangeModal({ initialRange, onApply, onClose }) {
         <form className="form-grid" onSubmit={submit}>
           <div className="modal-header span-2">
             <div>
-              <span className="muted">Dashboard filter</span>
+              <span className="muted">Date filter</span>
               <h2>Custom date range</h2>
             </div>
             <button className="icon-button" type="button" onClick={onClose} title="Close">

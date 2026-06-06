@@ -2,8 +2,15 @@ import axiosClient from './axiosClient';
 
 const pathForType = (type) => (type === 'income' ? '/income' : '/expenses');
 
-export const listTransactions = async (type) => {
-  const { data } = await axiosClient.get(pathForType(type));
+const rangeParams = (range = {}) => {
+  const params = {};
+  if (range.startDate) params.startDate = range.startDate;
+  if (range.endDate) params.endDate = range.endDate;
+  return params;
+};
+
+export const listTransactions = async (type, range) => {
+  const { data } = await axiosClient.get(pathForType(type), { params: rangeParams(range) });
   return data;
 };
 

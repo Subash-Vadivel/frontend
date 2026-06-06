@@ -10,7 +10,13 @@ const emptyForm = {
   amount: '',
 };
 
-export default function TransactionForm({ type, categories, onSubmit }) {
+export default function TransactionForm({
+  type,
+  categories,
+  onSubmit,
+  className = 'panel form-grid',
+  heading = `Add ${type}`,
+}) {
   const [form, setForm] = useState(emptyForm);
   const [customValues, setCustomValues] = useState({});
   const [saving, setSaving] = useState(false);
@@ -46,10 +52,12 @@ export default function TransactionForm({ type, categories, onSubmit }) {
   };
 
   return (
-    <form className="panel form-grid" onSubmit={submit}>
-      <div className="form-header">
-        <h2>Add {type}</h2>
-      </div>
+    <form className={className} onSubmit={submit}>
+      {heading && (
+        <div className="form-header">
+          <h2>{heading}</h2>
+        </div>
+      )}
       <label>
         Date
         <input type="date" value={form.date} onChange={(event) => updateField('date', event.target.value)} required />

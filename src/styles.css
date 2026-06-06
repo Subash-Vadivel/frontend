@@ -58,6 +58,13 @@ a { color: inherit; }
 .main-content { padding: 28px; }
 .page-stack { display: grid; gap: 22px; }
 .page-header { display: flex; justify-content: space-between; align-items: center; }
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 .dashboard-filter {
   display: flex;
   align-items: center;
@@ -150,6 +157,23 @@ th { color: #5b6557; font-size: 0.86rem; text-transform: uppercase; }
   min-width: 150px;
 }
 .category-pill small { color: #63745d; }
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 8px;
+  padding: 4px 9px;
+  font-weight: 800;
+  font-size: 0.84rem;
+}
+.type-badge.income {
+  background: #e7f4ec;
+  color: #276749;
+}
+.type-badge.expense {
+  background: #fff0e8;
+  color: #9a3412;
+}
 .section-title-row {
   display: flex;
   justify-content: space-between;
@@ -212,6 +236,7 @@ th { color: #5b6557; font-size: 0.86rem; text-transform: uppercase; }
   gap: 16px;
 }
 .modal-header h2 { margin: 2px 0 0; }
+.modal-form { margin-top: 18px; }
 .custom-field-readout {
   display: grid;
   gap: 8px;
@@ -232,6 +257,7 @@ th { color: #5b6557; font-size: 0.86rem; text-transform: uppercase; }
   .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid #dce3d7; }
   .sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page-header { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .page-actions { width: 100%; justify-content: space-between; }
   .dashboard-filter { width: 100%; justify-content: space-between; }
   .dashboard-filter select { min-width: 150px; }
   .summary-grid, .chart-grid, .form-grid { grid-template-columns: 1fr; }
