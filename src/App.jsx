@@ -5,15 +5,15 @@ import CategoryPage from './pages/CategoryPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import ExpensePage from './pages/ExpensePage.jsx';
 import IncomePage from './pages/IncomePage.jsx';
-import LoginPage from './pages/LoginPage.jsx';
+import LandingPage from './pages/LandingPage.jsx';
 import McpPage from './pages/McpPage.jsx';
-import SignupPage from './pages/SignupPage.jsx';
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LandingPage initialAuthMode="login" />} />
+      <Route path="/signup" element={<LandingPage initialAuthMode="signup" />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -23,7 +23,7 @@ export default function App() {
           <Route path="/mcp" element={<McpPage />} />
         </Route>
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
