@@ -2,12 +2,15 @@ import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { createTransaction, deleteTransaction, listTransactions, updateTransaction } from '../api/transactionApi';
 import DateRangeFilter from '../components/filters/DateRangeFilter.jsx';
+import DataPanel from '../components/layout/DataPanel.jsx';
+import PageShell from '../components/layout/PageShell.jsx';
 import TransactionCreateModal from '../components/modals/TransactionCreateModal.jsx';
 import TransactionDetailModal from '../components/modals/TransactionDetailModal.jsx';
 import TransactionTable from '../components/tables/TransactionTable.jsx';
 import { useCategories } from '../hooks/useCategories.js';
 import DateRangeModal from '../components/modals/DateRangeModal.jsx';
-import { rangeForMode, thisMonthRange } from '../utils/dateRanges';
+import { rangeForMode } from '../utils/dateRanges';
+import ConfirmDialog from '../components/modals/ConfirmDialog.jsx';
 
 export default function TransactionManager({ type, title }) {
   const { categories } = useCategories(type);
@@ -15,8 +18,10 @@ export default function TransactionManager({ type, title }) {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [customModalOpen, setCustomModalOpen] = useState(false);
-  const [rangeMode, setRangeMode] = useState('thisMonth');
-  const [dateRange, setDateRange] = useState(() => thisMonthRange());
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [rangeMode, setRangeMode] = useState('all');
+  const [dateRange, setDateRange] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -47,10 +52,16 @@ export default function TransactionManager({ type, title }) {
     await loadEntries();
   };
 
-  const remove = async (id) => {
-    if (!window.confirm('Delete this entry?')) return;
-    await deleteTransaction(type, id);
-    await loadEntries();
+  const remove = async () => {
+    if (!deleteTargetId) return;
+    setDeleting(true);
+    try {
+      await deleteTransaction(type, deleteTargetId);
+      await loadEntries();
+      setDeleteTargetId(null);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const changeRange = (value) => {
@@ -68,11 +79,17 @@ export default function TransactionManager({ type, title }) {
     setCustomModalOpen(false);
   };
 
+  const pageDescription = type === 'income'
+    ? 'Review farm revenue entries, filter by reporting period, and add new income records.'
+    : 'Review operating costs, filter by reporting period, and add new expense records.';
+
   return (
-    <section className="page-stack">
-      <header className="page-header">
-        <h1>{title}</h1>
-        <div className="page-actions">
+    <PageShell
+      eyebrow="Transactions"
+      title={title}
+      description={pageDescription}
+      actions={(
+        <>
           <DateRangeFilter
             label={`${title} date range`}
             rangeMode={rangeMode}
@@ -82,13 +99,17 @@ export default function TransactionManager({ type, title }) {
           <button className="primary-button" type="button" onClick={() => setCreateModalOpen(true)}>
             <Plus size={17} /> Add {type}
           </button>
-        </div>
-      </header>
-      <div className="panel">
-        <h2>{title} entries</h2>
+        </>
+      )}
+    >
+      <DataPanel
+        className="table-panel"
+        title={`${title} ledger`}
+        description={`${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} in the current view.`}
+      >
         {error && <p className="error-message">{error}</p>}
-        {loading ? <div className="page-loader">Loading...</div> : <TransactionTable entries={entries} onView={setSelectedEntry} onDelete={remove} />}
-      </div>
+        {loading ? <div className="page-loader">Loading...</div> : <TransactionTable entries={entries} onView={setSelectedEntry} onDelete={setDeleteTargetId} />}
+      </DataPanel>
       {createModalOpen && (
         <TransactionCreateModal
           type={type}
@@ -111,6 +132,16 @@ export default function TransactionManager({ type, title }) {
         onClose={() => setSelectedEntry(null)}
         onSave={saveFromModal}
       />
-    </section>
+      {deleteTargetId && (
+        <ConfirmDialog
+          confirmLabel="Delete entry"
+          loading={deleting}
+          message={`This ${type} entry will be permanently deleted. This action cannot be undone.`}
+          onCancel={() => setDeleteTargetId(null)}
+          onConfirm={remove}
+          title="Delete entry?"
+        />
+      )}
+    </PageShell>
   );
 }

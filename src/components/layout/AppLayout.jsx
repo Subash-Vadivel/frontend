@@ -5,9 +5,11 @@ export default function AppLayout() {
   return (
     <div className="app-shell">
       <Navbar />
-      <main className="main-content">
-        <Outlet />
-      </main>
+      <div className="app-main">
+        <main className="main-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

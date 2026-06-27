@@ -1,6 +1,9 @@
 import { Copy, KeyRound, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { createMcpApiKey, deleteMcpApiKey, listMcpApiKeys, updateMcpApiKey } from '../api/mcpApi';
+import DataPanel from '../components/layout/DataPanel.jsx';
+import PageShell from '../components/layout/PageShell.jsx';
+import ConfirmDialog from '../components/modals/ConfirmDialog.jsx';
 
 const formatDateTime = (value) => {
   if (!value) return '-';
@@ -16,6 +19,8 @@ export default function McpPage() {
   const [createdKey, setCreatedKey] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
 
   const mcpEndpoint = useMemo(() => {
@@ -60,10 +65,20 @@ export default function McpPage() {
     await loadKeys();
   };
 
-  const removeKey = async (apiKey) => {
-    if (!window.confirm(`Delete API key "${apiKey.name}"?`)) return;
-    await deleteMcpApiKey(apiKey.id);
-    await loadKeys();
+  const removeKey = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteMcpApiKey(deleteTarget.id);
+      await loadKeys();
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const copyMcpEndpoint = async () => {
+    await navigator.clipboard.writeText(mcpEndpoint);
   };
 
   const copyCreatedKey = async () => {
@@ -72,50 +87,59 @@ export default function McpPage() {
   };
 
   return (
-    <section className="page-stack">
-      <header className="page-header">
-        <div>
-          <h1>MCP</h1>
-          <p className="muted no-margin">Manage API keys for Model Context Protocol access.</p>
-        </div>
-      </header>
+    <PageShell
+      eyebrow="Developer access"
+      title="MCP"
+      description="Manage Model Context Protocol endpoint details and API key access for connected clients."
+    >
+      <div className="settings-grid">
+        <DataPanel
+          className="mcp-endpoint-panel"
+          eyebrow="Endpoint"
+          title="Streamable HTTP"
+          description="Use this endpoint when configuring an MCP-compatible client."
+        >
+          <div className="endpoint-copy-row">
+            <code>{mcpEndpoint}</code>
+            <button className="icon-button" type="button" onClick={copyMcpEndpoint} title="Copy endpoint">
+              <Copy size={16} />
+            </button>
+          </div>
+        </DataPanel>
 
-      <div className="panel mcp-endpoint-panel">
-        <h2>Streamable HTTP endpoint</h2>
-        <code>{mcpEndpoint}</code>
+        <DataPanel
+          title="Create API key"
+          description="Generate a named key for a trusted client. The full key is shown once."
+        >
+          <form className="form-grid compact-form" onSubmit={createKey}>
+            <label>
+              Key name
+              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Claude Desktop" required />
+            </label>
+            <button className="primary-button form-action" type="submit" disabled={saving}>
+              <Plus size={17} /> {saving ? 'Creating...' : 'Create key'}
+            </button>
+            {error && <p className="error-message span-2">{error}</p>}
+          </form>
+        </DataPanel>
       </div>
 
-      <form className="panel form-grid compact-form" onSubmit={createKey}>
-        <div className="form-header span-2">
-          <h2>Create MCP API key</h2>
-        </div>
-        <label>
-          Key name
-          <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Claude Desktop" required />
-        </label>
-        <button className="primary-button form-action" type="submit" disabled={saving}>
-          <Plus size={17} /> {saving ? 'Creating...' : 'Create key'}
-        </button>
-        {error && <p className="error-message span-2">{error}</p>}
-      </form>
-
       {createdKey && (
-        <div className="panel mcp-created-key">
-          <div className="section-title-row">
-            <div>
-              <h2>Copy your new key</h2>
-              <p className="muted no-margin">This full key is shown only once.</p>
-            </div>
+        <DataPanel
+          className="mcp-created-key"
+          title="Copy your new key"
+          description="This full key is shown only once."
+          action={(
             <button className="ghost-button" type="button" onClick={copyCreatedKey}>
               <Copy size={16} /> Copy
             </button>
-          </div>
+          )}
+        >
           <code>{createdKey.apiKey}</code>
-        </div>
+        </DataPanel>
       )}
 
-      <div className="panel">
-        <h2>API keys</h2>
+      <DataPanel title="API keys" description={`${apiKeys.length} ${apiKeys.length === 1 ? 'key' : 'keys'} configured for MCP access.`}>
         {loading ? <div className="page-loader">Loading...</div> : (
           apiKeys.length ? (
             <div className="table-wrap">
@@ -146,7 +170,7 @@ export default function McpPage() {
                         <button className="icon-button" type="button" onClick={() => toggleKey(apiKey)} title={apiKey.enabled ? 'Disable key' : 'Enable key'}>
                           <KeyRound size={16} />
                         </button>
-                        <button className="icon-button danger" type="button" onClick={() => removeKey(apiKey)} title="Delete key">
+                        <button className="icon-button danger" type="button" onClick={() => setDeleteTarget(apiKey)} title="Delete key">
                           <Trash2 size={16} />
                         </button>
                       </td>
@@ -157,7 +181,17 @@ export default function McpPage() {
             </div>
           ) : <div className="empty-state">No MCP API keys yet.</div>
         )}
-      </div>
-    </section>
+      </DataPanel>
+      {deleteTarget && (
+        <ConfirmDialog
+          confirmLabel="Delete key"
+          loading={deleting}
+          message={`API key "${deleteTarget.name}" will be permanently deleted. Connected clients using this key will lose access.`}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={removeKey}
+          title="Delete API key?"
+        />
+      )}
+    </PageShell>
   );
 }

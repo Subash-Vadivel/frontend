@@ -1,6 +1,9 @@
-import { Plus } from 'lucide-react';
+import { FolderTree, Plus, ReceiptText, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createCategory, listCategories } from '../api/categoryApi';
+import DataPanel from '../components/layout/DataPanel.jsx';
+import MetricCard from '../components/layout/MetricCard.jsx';
+import PageShell from '../components/layout/PageShell.jsx';
 import CategoryCreateModal from '../components/modals/CategoryCreateModal.jsx';
 import CategoryTable from '../components/tables/CategoryTable.jsx';
 
@@ -46,24 +49,35 @@ export default function CategoryPage() {
   };
 
   return (
-    <section className="page-stack">
-      <header className="page-header">
-        <h1>Categories</h1>
+    <PageShell
+      eyebrow="Configuration"
+      title="Categories"
+      description="Control the income and expense taxonomy that powers reports, entries, and custom fields."
+      actions={(
         <button className="primary-button" type="button" onClick={() => setCreateModalOpen(true)}>
           <Plus size={17} /> Add category
         </button>
-      </header>
-      <div className="panel">
-        <h2>All categories</h2>
+      )}
+    >
+      <div className="metric-grid compact">
+        <MetricCard tone="income" icon={WalletCards} label="Income categories" value={incomeCategories.length} detail="Revenue classifications" />
+        <MetricCard tone="expense" icon={ReceiptText} label="Expense categories" value={expenseCategories.length} detail="Cost classifications" />
+        <MetricCard tone="balance" icon={FolderTree} label="Total categories" value={categories.length} detail="Available for entries" />
+      </div>
+      <DataPanel
+        className="table-panel"
+        title="Category directory"
+        description="Manage labels and custom field counts used across transaction workflows."
+      >
         {error && <p className="error-message">{error}</p>}
         {loading ? <div className="page-loader">Loading...</div> : <CategoryTable categories={categories} />}
-      </div>
+      </DataPanel>
       {createModalOpen && (
         <CategoryCreateModal
           onClose={() => setCreateModalOpen(false)}
           onSubmit={submit}
         />
       )}
-    </section>
+    </PageShell>
   );
 }

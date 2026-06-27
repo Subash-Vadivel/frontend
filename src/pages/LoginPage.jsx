@@ -1,6 +1,7 @@
-import { Sprout } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import ThemeToggle from '../components/theme/ThemeToggle.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function LoginPage() {
@@ -27,15 +28,45 @@ export default function LoginPage() {
 
   return (
     <main className="auth-page">
-      <form className="auth-card" onSubmit={submit}>
-        <div className="auth-brand"><Sprout /> Farm Accounts</div>
-        <h1>Login</h1>
-        <label>Email<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
-        <label>Password<input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></label>
-        {error && <p className="error-message">{error}</p>}
-        <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
-        <p className="auth-switch">Need an account? <Link to="/signup">Sign up</Link></p>
-      </form>
+      <div className="auth-shell">
+        <section className="auth-hero" aria-label="Farm Accounts overview">
+          <div className="auth-brand"><span className="brand-mark"><Sprout /></span> Farm Accounts</div>
+          <div>
+            <p className="eyebrow">Farm finance dashboard</p>
+            <h1>Command income, expenses, categories, and access keys in one calm workspace.</h1>
+          </div>
+          <div className="auth-proof">
+            <ShieldCheck size={18} />
+            <span>Secure access with clean records and fast reporting.</span>
+          </div>
+        </section>
+        <form className="auth-card" onSubmit={submit}>
+          <div className="auth-card-top">
+            <div>
+              <p className="eyebrow">Welcome back</p>
+              <h2>Login</h2>
+            </div>
+            <ThemeToggle className="compact-toggle" />
+          </div>
+          <label>
+            Email
+            <span className="input-shell">
+              <Mail size={17} />
+              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+            </span>
+          </label>
+          <label>
+            Password
+            <span className="input-shell">
+              <Lock size={17} />
+              <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            </span>
+          </label>
+          {error && <p className="error-message">{error}</p>}
+          <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
+          <p className="auth-switch">Need an account? <Link to="/signup">Sign up</Link></p>
+        </form>
+      </div>
     </main>
   );
 }

@@ -2,10 +2,12 @@ import { IndianRupee, TrendingDown, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CategoryPieChart from '../components/charts/CategoryPieChart.jsx';
 import DateRangeFilter from '../components/filters/DateRangeFilter.jsx';
+import MetricCard from '../components/layout/MetricCard.jsx';
+import PageShell from '../components/layout/PageShell.jsx';
 import MonthlyTotalsChart from '../components/charts/MonthlyTotalsChart.jsx';
 import DateRangeModal from '../components/modals/DateRangeModal.jsx';
 import { getCategoryTotals, getMonthlyTotals, getSummary } from '../api/dashboardApi';
-import { rangeForMode, thisMonthRange } from '../utils/dateRanges';
+import { rangeForMode } from '../utils/dateRanges';
 import { formatCurrency } from '../utils/formatters';
 
 export default function DashboardPage() {
@@ -14,8 +16,8 @@ export default function DashboardPage() {
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [rangeMode, setRangeMode] = useState('thisMonth');
-  const [dateRange, setDateRange] = useState(() => thisMonthRange());
+  const [rangeMode, setRangeMode] = useState('all');
+  const [dateRange, setDateRange] = useState({});
   const [customModalOpen, setCustomModalOpen] = useState(false);
 
   useEffect(() => {
@@ -54,20 +56,23 @@ export default function DashboardPage() {
   if (loading) return <div className="page-loader">Loading dashboard...</div>;
 
   return (
-    <section className="page-stack">
-      <header className="page-header">
-        <h1>Dashboard</h1>
+    <PageShell
+      eyebrow="Command center"
+      title="Dashboard"
+      description="Monitor farm cash flow, category movement, and net balance for the selected period."
+      actions={(
         <DateRangeFilter
           label="Dashboard date range"
           rangeMode={rangeMode}
           dateRange={dateRange}
           onChange={changeRange}
         />
-      </header>
-      <div className="summary-grid">
-        <article className="summary-card income"><TrendingUp /><span>Total income</span><strong>{formatCurrency(summary.totalIncome)}</strong></article>
-        <article className="summary-card expense"><TrendingDown /><span>Total expense</span><strong>{formatCurrency(summary.totalExpense)}</strong></article>
-        <article className="summary-card balance"><IndianRupee /><span>Net balance</span><strong>{formatCurrency(summary.netBalance)}</strong></article>
+      )}
+    >
+      <div className="metric-grid">
+        <MetricCard tone="income" icon={TrendingUp} label="Total income" value={formatCurrency(summary.totalIncome)} detail="Revenue captured in range" />
+        <MetricCard tone="expense" icon={TrendingDown} label="Total expense" value={formatCurrency(summary.totalExpense)} detail="Costs captured in range" />
+        <MetricCard tone="balance" icon={IndianRupee} label="Net balance" value={formatCurrency(summary.netBalance)} detail="Income minus expenses" />
       </div>
       <MonthlyTotalsChart data={monthly} />
       <div className="chart-grid">
@@ -81,6 +86,6 @@ export default function DashboardPage() {
           onClose={() => setCustomModalOpen(false)}
         />
       )}
-    </section>
+    </PageShell>
   );
 }
