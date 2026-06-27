@@ -1497,6 +1497,7 @@ td code {
 .auth-modal-actions .theme-toggle span {
   display: none;
 }
+}
 
 .landing-trust-strip,
 .landing-section,
@@ -1712,6 +1713,7 @@ td code {
   border-top: 1px solid var(--border);
 }
 
+@media (max-width: 620px) {
   .auth-page { padding: 14px; }
   .auth-hero { padding: 24px; min-height: 310px; }
   .auth-hero h1 { font-size: 2rem; }
