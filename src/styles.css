@@ -1714,6 +1714,20 @@ td code {
 }
 
 @media (max-width: 620px) {
+  .preview-content,
+  .landing-trust-strip,
+  .landing-feature-grid,
+  .landing-workflow-grid,
+  .surface-grid,
+  .use-case-grid,
+  .landing-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-product-section {
+    grid-template-columns: 1fr;
+  }
+
   .auth-page { padding: 14px; }
   .auth-hero { padding: 24px; min-height: 310px; }
   .auth-hero h1 { font-size: 2rem; }
