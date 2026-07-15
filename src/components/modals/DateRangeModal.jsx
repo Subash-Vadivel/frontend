@@ -1,51 +1,31 @@
 import { useState } from 'react';
-import { CalendarCheck, X } from 'lucide-react';
+import { CalendarCheck } from 'lucide-react';
+import { Button } from '../ui/button.jsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog.jsx';
+import { Input } from '../ui/input.jsx';
+import { Label } from '../ui/label.jsx';
 
 export default function DateRangeModal({ initialRange, onApply, onClose }) {
   const [startDate, setStartDate] = useState(initialRange?.startDate || '');
   const [endDate, setEndDate] = useState(initialRange?.endDate || '');
   const [error, setError] = useState('');
-
   const submit = (event) => {
     event.preventDefault();
-    if (!startDate || !endDate) {
-      setError('Start date and end date are required');
-      return;
-    }
-    if (startDate > endDate) {
-      setError('Start date cannot be after end date');
-      return;
-    }
+    if (!startDate || !endDate) { setError('Start date and end date are required'); return; }
+    if (startDate > endDate) { setError('Start date cannot be after end date'); return; }
     onApply({ startDate, endDate });
   };
-
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className="modal-panel compact-modal" role="dialog" aria-modal="true" aria-label="Custom date range" onMouseDown={(event) => event.stopPropagation()}>
-        <form className="form-grid" onSubmit={submit}>
-          <div className="modal-header span-2">
-            <div>
-              <span className="muted">Date filter</span>
-              <h2>Custom date range</h2>
-            </div>
-            <button className="icon-button" type="button" onClick={onClose} title="Close">
-              <X size={18} />
-            </button>
-          </div>
-          <label>
-            Start date
-            <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} required />
-          </label>
-          <label>
-            End date
-            <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} required />
-          </label>
-          {error && <p className="error-message span-2">{error}</p>}
-          <button className="primary-button span-2" type="submit">
-            <CalendarCheck size={17} /> Apply range
-          </button>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogDescription>Date filter</DialogDescription><DialogTitle>Custom date range</DialogTitle></DialogHeader>
+        <form className="grid gap-4 sm:grid-cols-2" onSubmit={submit}>
+          <div className="grid gap-2"><Label>Start date</Label><Input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} required /></div>
+          <div className="grid gap-2"><Label>End date</Label><Input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} required /></div>
+          {error && <p className="col-span-full rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
+          <Button className="col-span-full" type="submit"><CalendarCheck /> Apply range</Button>
         </form>
-      </section>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

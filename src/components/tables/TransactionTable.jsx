@@ -1,44 +1,36 @@
-import { Eye, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Eye, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Button } from '../ui/button.jsx';
+import { Badge } from '../ui/badge.jsx';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table.jsx';
+import { formatCurrency } from '../../utils/formatters.js';
 
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value || 0);
-
-export default function TransactionTable({ entries, onView, onDelete }) {
-  if (!entries.length) {
-    return <div className="empty-state">No entries yet.</div>;
-  }
-
+function SortHeader({ sortKey, onSort, children }) {
   return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Description</th>
-            <th className="numeric">Amount</th>
-            <th className="actions-cell">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map((entry) => (
-            <tr key={entry.id} className="clickable-row" onClick={() => onView(entry)}>
-              <td>{entry.date}</td>
-              <td>{entry.categoryName}</td>
-              <td>{entry.description || '-'}</td>
-              <td className="numeric">{formatCurrency(entry.amount)}</td>
-              <td className="actions-cell">
-                <button className="icon-button" type="button" onClick={(event) => { event.stopPropagation(); onView(entry); }} title="View entry">
-                  <Eye size={16} />
-                </button>
-                <button className="icon-button danger" type="button" onClick={(event) => { event.stopPropagation(); onDelete(entry.id); }} title="Delete entry">
-                  <Trash2 size={16} />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <button className="inline-flex items-center gap-1" type="button" onClick={() => onSort(sortKey)}>
+      {children}<ArrowUpDown className="h-3 w-3" />
+    </button>
+  );
+}
+
+export default function TransactionTable({ entries, onView, onDelete, query = '' }) {
+  const [sort, setSort] = useState({ key: 'date', dir: 'desc' });
+  const rows = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    return entries
+      .filter((entry) => !q || `${entry.date} ${entry.categoryName} ${entry.description} ${entry.amount}`.toLowerCase().includes(q))
+      .sort((a, b) => {
+        const dir = sort.dir === 'asc' ? 1 : -1;
+        if (sort.key === 'amount') return ((Number(a.amount)||0) - (Number(b.amount)||0)) * dir;
+        return String(a[sort.key] || '').localeCompare(String(b[sort.key] || '')) * dir;
+      });
+  }, [entries, query, sort]);
+  const toggleSort = (key) => setSort((current) => current.key === key ? { key, dir: current.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' });
+  if (!rows.length) return <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-xs text-muted-foreground">No matching entries.</div>;
+  return (
+    <Table>
+      <TableHeader><TableRow><TableHead><SortHeader sortKey="date" onSort={toggleSort}>Date</SortHeader></TableHead><TableHead><SortHeader sortKey="categoryName" onSort={toggleSort}>Category</SortHeader></TableHead><TableHead>Description</TableHead><TableHead className="text-right"><SortHeader sortKey="amount" onSort={toggleSort}>Amount</SortHeader></TableHead><TableHead className="w-24 text-right">Actions</TableHead></TableRow></TableHeader>
+      <TableBody>{rows.map((entry) => <TableRow key={entry.id} className="cursor-pointer" onClick={() => onView(entry)}><TableCell className="font-mono text-xs">{entry.date}</TableCell><TableCell><Badge variant="outline">{entry.categoryName}</Badge></TableCell><TableCell className="max-w-[360px] truncate">{entry.description || '-'}</TableCell><TableCell className="text-right font-medium text-foreground">{formatCurrency(entry.amount)}</TableCell><TableCell className="text-right"><div className="flex justify-end gap-1"><Button type="button" variant="ghost" size="icon" title="View entry" onClick={(event) => { event.stopPropagation(); onView(entry); }}><Eye /></Button><Button type="button" variant="ghost" size="icon" title="Delete entry" className="text-destructive hover:text-destructive" onClick={(event) => { event.stopPropagation(); onDelete(entry.id); }}><Trash2 /></Button></div></TableCell></TableRow>)}</TableBody>
+    </Table>
   );
 }

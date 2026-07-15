@@ -1,46 +1,8 @@
-const formatDate = (value) => {
-  if (!value) return '-';
-  return new Intl.DateTimeFormat('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(value));
-};
-
-const typeLabel = {
-  income: 'Income',
-  expense: 'Expense',
-};
-
+import { Badge } from '../ui/badge.jsx';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table.jsx';
+const formatDate = (value) => { if (!value) return '-'; return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value)); };
+const typeLabel = { income: 'Income', expense: 'Expense' };
 export default function CategoryTable({ categories }) {
-  if (!categories.length) {
-    return <div className="empty-state">No categories yet.</div>;
-  }
-
-  return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Type</th>
-            <th className="numeric">Custom fields</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((category) => (
-            <tr key={category.id}>
-              <td><strong>{category.name}</strong></td>
-              <td>
-                <span className={`type-badge ${category.type}`}>{typeLabel[category.type] || category.type}</span>
-              </td>
-              <td className="numeric">{category.customFields?.length || 0}</td>
-              <td>{formatDate(category.createdAt)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  if (!categories.length) return <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-xs text-muted-foreground">No categories match this view.</div>;
+  return <Table><TableHeader><TableRow><TableHead>Category</TableHead><TableHead>Type</TableHead><TableHead className="text-right">Custom fields</TableHead><TableHead>Created</TableHead></TableRow></TableHeader><TableBody>{categories.map((category) => <TableRow key={category.id}><TableCell className="font-medium text-foreground">{category.name}</TableCell><TableCell><Badge variant={category.type}>{typeLabel[category.type] || category.type}</Badge></TableCell><TableCell className="text-right">{category.customFields?.length || 0}</TableCell><TableCell className="font-mono text-xs">{formatDate(category.createdAt)}</TableCell></TableRow>)}</TableBody></Table>;
 }

@@ -1,197 +1,32 @@
-import { Copy, KeyRound, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, Copy, KeyRound, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { createMcpApiKey, deleteMcpApiKey, listMcpApiKeys, updateMcpApiKey } from '../api/mcpApi';
 import DataPanel from '../components/layout/DataPanel.jsx';
+import MetricCard from '../components/layout/MetricCard.jsx';
 import PageShell from '../components/layout/PageShell.jsx';
 import ConfirmDialog from '../components/modals/ConfirmDialog.jsx';
-
-const formatDateTime = (value) => {
-  if (!value) return '-';
-  return new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
-};
-
+import { Badge } from '../components/ui/badge.jsx';
+import { Button } from '../components/ui/button.jsx';
+import { Input } from '../components/ui/input.jsx';
+import { Label } from '../components/ui/label.jsx';
+import { Skeleton } from '../components/ui/skeleton.jsx';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table.jsx';
+const formatDateTime = (value) => { if (!value) return '-'; return new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)); };
 export default function McpPage() {
-  const [apiKeys, setApiKeys] = useState([]);
-  const [name, setName] = useState('');
-  const [createdKey, setCreatedKey] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState('');
-
-  const mcpEndpoint = useMemo(() => {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-    return apiBase.replace(/\/api\/?$/, '/mcp');
-  }, []);
-
-  const loadKeys = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      setApiKeys(await listMcpApiKeys());
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Unable to load MCP API keys');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadKeys();
-  }, []);
-
-  const createKey = async (event) => {
-    event.preventDefault();
-    setSaving(true);
-    setError('');
-    try {
-      const apiKey = await createMcpApiKey({ name });
-      setCreatedKey(apiKey);
-      setName('');
-      await loadKeys();
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Unable to create MCP API key');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const toggleKey = async (apiKey) => {
-    await updateMcpApiKey(apiKey.id, { enabled: !apiKey.enabled });
-    await loadKeys();
-  };
-
-  const removeKey = async () => {
-    if (!deleteTarget) return;
-    setDeleting(true);
-    try {
-      await deleteMcpApiKey(deleteTarget.id);
-      await loadKeys();
-      setDeleteTarget(null);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const copyMcpEndpoint = async () => {
-    await navigator.clipboard.writeText(mcpEndpoint);
-  };
-
-  const copyCreatedKey = async () => {
-    if (!createdKey?.apiKey) return;
-    await navigator.clipboard.writeText(createdKey.apiKey);
-  };
-
-  return (
-    <PageShell
-      eyebrow="Developer access"
-      title="MCP"
-      description="Manage Model Context Protocol endpoint details and API key access for connected clients."
-    >
-      <div className="settings-grid">
-        <DataPanel
-          className="mcp-endpoint-panel"
-          eyebrow="Endpoint"
-          title="Streamable HTTP"
-          description="Use this endpoint when configuring an MCP-compatible client."
-        >
-          <div className="endpoint-copy-row">
-            <code>{mcpEndpoint}</code>
-            <button className="icon-button" type="button" onClick={copyMcpEndpoint} title="Copy endpoint">
-              <Copy size={16} />
-            </button>
-          </div>
-        </DataPanel>
-
-        <DataPanel
-          title="Create API key"
-          description="Generate a named key for a trusted client. The full key is shown once."
-        >
-          <form className="form-grid compact-form" onSubmit={createKey}>
-            <label>
-              Key name
-              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Claude Desktop" required />
-            </label>
-            <button className="primary-button form-action" type="submit" disabled={saving}>
-              <Plus size={17} /> {saving ? 'Creating...' : 'Create key'}
-            </button>
-            {error && <p className="error-message span-2">{error}</p>}
-          </form>
-        </DataPanel>
-      </div>
-
-      {createdKey && (
-        <DataPanel
-          className="mcp-created-key"
-          title="Copy your new key"
-          description="This full key is shown only once."
-          action={(
-            <button className="ghost-button" type="button" onClick={copyCreatedKey}>
-              <Copy size={16} /> Copy
-            </button>
-          )}
-        >
-          <code>{createdKey.apiKey}</code>
-        </DataPanel>
-      )}
-
-      <DataPanel title="API keys" description={`${apiKeys.length} ${apiKeys.length === 1 ? 'key' : 'keys'} configured for MCP access.`}>
-        {loading ? <div className="page-loader">Loading...</div> : (
-          apiKeys.length ? (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Prefix</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                    <th>Last used</th>
-                    <th className="actions-cell">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {apiKeys.map((apiKey) => (
-                    <tr key={apiKey.id}>
-                      <td><strong>{apiKey.name}</strong></td>
-                      <td><code>{apiKey.keyPrefix}...</code></td>
-                      <td>
-                        <span className={`type-badge ${apiKey.enabled ? 'income' : 'expense'}`}>
-                          {apiKey.enabled ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </td>
-                      <td>{formatDateTime(apiKey.createdAt)}</td>
-                      <td>{formatDateTime(apiKey.lastUsedAt)}</td>
-                      <td className="actions-cell">
-                        <button className="icon-button" type="button" onClick={() => toggleKey(apiKey)} title={apiKey.enabled ? 'Disable key' : 'Enable key'}>
-                          <KeyRound size={16} />
-                        </button>
-                        <button className="icon-button danger" type="button" onClick={() => setDeleteTarget(apiKey)} title="Delete key">
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : <div className="empty-state">No MCP API keys yet.</div>
-        )}
-      </DataPanel>
-      {deleteTarget && (
-        <ConfirmDialog
-          confirmLabel="Delete key"
-          loading={deleting}
-          message={`API key "${deleteTarget.name}" will be permanently deleted. Connected clients using this key will lose access.`}
-          onCancel={() => setDeleteTarget(null)}
-          onConfirm={removeKey}
-          title="Delete API key?"
-        />
-      )}
-    </PageShell>
-  );
+  const [apiKeys, setApiKeys] = useState([]); const [name, setName] = useState(''); const [createdKey, setCreatedKey] = useState(null); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [deleteTarget, setDeleteTarget] = useState(null); const [deleting, setDeleting] = useState(false); const [error, setError] = useState(''); const [query, setQuery] = useState('');
+  const mcpEndpoint = useMemo(() => { const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'; return apiBase.replace(/\/api\/?$/, '/mcp'); }, []);
+  const loadKeys = async () => { setLoading(true); setError(''); try { setApiKeys(await listMcpApiKeys()); } catch (err) { setError(err.response?.data?.detail || 'Unable to load MCP API keys'); } finally { setLoading(false); } };
+  useEffect(() => { loadKeys(); }, []);
+  const createKey = async (event) => { event.preventDefault(); setSaving(true); setError(''); try { const apiKey = await createMcpApiKey({ name }); setCreatedKey(apiKey); setName(''); await loadKeys(); } catch (err) { setError(err.response?.data?.detail || 'Unable to create MCP API key'); } finally { setSaving(false); } };
+  const toggleKey = async (apiKey) => { await updateMcpApiKey(apiKey.id, { enabled: !apiKey.enabled }); await loadKeys(); };
+  const removeKey = async () => { if (!deleteTarget) return; setDeleting(true); try { await deleteMcpApiKey(deleteTarget.id); await loadKeys(); setDeleteTarget(null); } finally { setDeleting(false); } };
+  const copyMcpEndpoint = async () => navigator.clipboard.writeText(mcpEndpoint); const copyCreatedKey = async () => { if (createdKey?.apiKey) await navigator.clipboard.writeText(createdKey.apiKey); };
+  const filtered = apiKeys.filter((apiKey) => !query.trim() || `${apiKey.name} ${apiKey.keyPrefix} ${apiKey.enabled ? 'enabled' : 'disabled'}`.toLowerCase().includes(query.toLowerCase())); const enabledCount = apiKeys.filter((key) => key.enabled).length;
+  return <PageShell eyebrow="Developer settings" title="MCP access" description="Manage the streamable HTTP endpoint and API keys for connected clients.">
+    <div className="grid gap-3 md:grid-cols-3"><MetricCard icon={KeyRound} label="API keys" value={apiKeys.length} detail="Total credentials" /><MetricCard icon={CheckCircle2} label="Enabled" value={enabledCount} detail="Active client access" tone="income" /><MetricCard label="Endpoint" value="HTTP" detail="Streamable MCP transport" tone="balance" /></div>
+    <div className="grid gap-3 lg:grid-cols-[1fr_420px]"><DataPanel eyebrow="Endpoint" title="Streamable HTTP" description="Use this endpoint when configuring an MCP-compatible client."><div className="grid grid-cols-[1fr_32px] gap-2"><code className="overflow-wrap-anywhere rounded-md border bg-muted/30 px-2.5 py-2 font-mono text-xs text-foreground">{mcpEndpoint}</code><Button type="button" variant="outline" size="icon" onClick={copyMcpEndpoint} title="Copy endpoint"><Copy /></Button></div></DataPanel><DataPanel title="Create API key" description="Generate a named key. The full key is shown once."><form className="grid gap-3" onSubmit={createKey}><div className="grid gap-1.5"><Label>Key name</Label><Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Claude Desktop" required /></div>{error && <p className="rounded-md border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}<Button type="submit" disabled={saving}><Plus /> {saving ? 'Creating...' : 'Create key'}</Button></form></DataPanel></div>
+    {createdKey && <DataPanel title="Copy your new key" description="This full key is shown only once." action={<Button type="button" variant="outline" onClick={copyCreatedKey}><Copy /> Copy</Button>}><code className="block overflow-wrap-anywhere rounded-md border bg-muted/30 px-2.5 py-2 font-mono text-xs text-foreground">{createdKey.apiKey}</code></DataPanel>}
+    <DataPanel title="API key registry" description="Audit configured clients and rotate access when needed." action={<div className="relative w-64"><Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" /><Input className="pl-8" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search keys..." /></div>}>
+      {loading ? <Skeleton className="h-72" /> : filtered.length ? <Table><TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Prefix</TableHead><TableHead>Status</TableHead><TableHead>Created</TableHead><TableHead>Last used</TableHead><TableHead className="w-24 text-right">Actions</TableHead></TableRow></TableHeader><TableBody>{filtered.map((apiKey) => <TableRow key={apiKey.id}><TableCell className="font-medium text-foreground">{apiKey.name}</TableCell><TableCell><code className="rounded-md border bg-muted/30 px-1.5 py-1 font-mono text-[11px]">{apiKey.keyPrefix}...</code></TableCell><TableCell><Badge variant={apiKey.enabled ? 'income' : 'expense'}>{apiKey.enabled ? 'Enabled' : 'Disabled'}</Badge></TableCell><TableCell className="font-mono text-xs">{formatDateTime(apiKey.createdAt)}</TableCell><TableCell className="font-mono text-xs">{formatDateTime(apiKey.lastUsedAt)}</TableCell><TableCell><div className="flex justify-end gap-1"><Button type="button" variant="ghost" size="icon" onClick={() => toggleKey(apiKey)} title={apiKey.enabled ? 'Disable key' : 'Enable key'}><KeyRound /></Button><Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(apiKey)} title="Delete key"><Trash2 /></Button></div></TableCell></TableRow>)}</TableBody></Table> : <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-xs text-muted-foreground">No MCP API keys match this view.</div>}
+    </DataPanel>{deleteTarget && <ConfirmDialog confirmLabel="Delete key" loading={deleting} message={`API key "${deleteTarget.name}" will be permanently deleted. Connected clients using this key will lose access.`} onCancel={() => setDeleteTarget(null)} onConfirm={removeKey} title="Delete API key?" />}</PageShell>;
 }

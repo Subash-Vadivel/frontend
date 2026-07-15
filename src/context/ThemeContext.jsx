@@ -13,18 +13,17 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(getPreferredTheme);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');
+    root.dataset.theme = theme;
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  const value = useMemo(
-    () => ({
-      theme,
-      setTheme,
-      toggleTheme: () => setTheme((current) => (current === 'dark' ? 'light' : 'dark')),
-    }),
-    [theme],
-  );
+  const value = useMemo(() => ({
+    theme,
+    setTheme,
+    toggleTheme: () => setTheme((current) => (current === 'dark' ? 'light' : 'dark')),
+  }), [theme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
