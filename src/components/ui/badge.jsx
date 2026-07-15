@@ -1,0 +1,4 @@
+import { cva } from 'class-variance-authority';
+import { cn } from '../../lib/utils.js';
+const badgeVariants=cva('inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium transition-colors',{variants:{variant:{default:'border-transparent bg-foreground text-background',secondary:'border-transparent bg-secondary text-secondary-foreground',outline:'text-foreground',income:'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',expense:'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300',balance:'border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300',warning:'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300'}},defaultVariants:{variant:'default'}});
+export function Badge({className,variant,...props}){return <div className={cn(badgeVariants({variant}),className)} {...props}/>}
