@@ -6,8 +6,12 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('farm_accounts_token');
+  const businessId = localStorage.getItem('farm_accounts_business_id');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (businessId) {
+    config.headers['X-Business-Id'] = businessId;
   }
   return config;
 });
@@ -17,6 +21,7 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('farm_accounts_token');
+      localStorage.removeItem('farm_accounts_business_id');
     }
     return Promise.reject(error);
   },

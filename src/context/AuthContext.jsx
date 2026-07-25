@@ -22,6 +22,7 @@ export function AuthProvider({ children }) {
         if (!ignore) setUser(currentUser);
       } catch {
         localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem('farm_accounts_business_id');
         if (!ignore) {
           setToken(null);
           setUser(null);
@@ -45,6 +46,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('farm_accounts_business_id');
     setToken(null);
     setUser(null);
   };

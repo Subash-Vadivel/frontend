@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { BusinessProvider } from './context/BusinessContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import App from './App.jsx';
 import '@fontsource/geist-sans/400.css';
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
-          <App />
+          <BusinessProvider>
+            <App />
+          </BusinessProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

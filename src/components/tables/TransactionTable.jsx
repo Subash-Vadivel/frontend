@@ -13,7 +13,7 @@ function SortHeader({ sortKey, onSort, children }) {
   );
 }
 
-export default function TransactionTable({ entries, onView, onDelete, query = '' }) {
+export default function TransactionTable({ entries, onView, onDelete, query = '', canDelete = true }) {
   const [sort, setSort] = useState({ key: 'date', dir: 'desc' });
   const rows = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -30,7 +30,7 @@ export default function TransactionTable({ entries, onView, onDelete, query = ''
   return (
     <Table>
       <TableHeader><TableRow><TableHead><SortHeader sortKey="date" onSort={toggleSort}>Date</SortHeader></TableHead><TableHead><SortHeader sortKey="categoryName" onSort={toggleSort}>Category</SortHeader></TableHead><TableHead>Description</TableHead><TableHead className="text-right"><SortHeader sortKey="amount" onSort={toggleSort}>Amount</SortHeader></TableHead><TableHead className="w-24 text-right">Actions</TableHead></TableRow></TableHeader>
-      <TableBody>{rows.map((entry) => <TableRow key={entry.id} className="cursor-pointer" onClick={() => onView(entry)}><TableCell className="font-mono text-xs">{entry.date}</TableCell><TableCell><Badge variant="outline">{entry.categoryName}</Badge></TableCell><TableCell className="max-w-[360px] truncate">{entry.description || '-'}</TableCell><TableCell className="text-right font-medium text-foreground">{formatCurrency(entry.amount)}</TableCell><TableCell className="text-right"><div className="flex justify-end gap-1"><Button type="button" variant="ghost" size="icon" title="View entry" onClick={(event) => { event.stopPropagation(); onView(entry); }}><Eye /></Button><Button type="button" variant="ghost" size="icon" title="Delete entry" className="text-destructive hover:text-destructive" onClick={(event) => { event.stopPropagation(); onDelete(entry.id); }}><Trash2 /></Button></div></TableCell></TableRow>)}</TableBody>
+      <TableBody>{rows.map((entry) => <TableRow key={entry.id} className="cursor-pointer" onClick={() => onView(entry)}><TableCell className="font-mono text-xs">{entry.date}</TableCell><TableCell><Badge variant="outline">{entry.categoryName}</Badge></TableCell><TableCell className="max-w-[360px] truncate">{entry.description || '-'}</TableCell><TableCell className="text-right font-medium text-foreground">{formatCurrency(entry.amount)}</TableCell><TableCell className="text-right"><div className="flex justify-end gap-1"><Button type="button" variant="ghost" size="icon" title="View entry" onClick={(event) => { event.stopPropagation(); onView(entry); }}><Eye /></Button>{canDelete && <Button type="button" variant="ghost" size="icon" title="Delete entry" className="text-destructive hover:text-destructive" onClick={(event) => { event.stopPropagation(); onDelete(entry.id); }}><Trash2 /></Button>}</div></TableCell></TableRow>)}</TableBody>
     </Table>
   );
 }
