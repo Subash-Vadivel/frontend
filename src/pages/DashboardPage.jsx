@@ -8,7 +8,7 @@ import PageShell from '../components/layout/PageShell.jsx';
 import MonthlyTotalsChart from '../components/charts/MonthlyTotalsChart.jsx';
 import DateRangeModal from '../components/modals/DateRangeModal.jsx';
 import { Badge } from '../components/ui/badge.jsx';
-import { Skeleton } from '../components/ui/skeleton.jsx';
+import { Loader } from '../components/ui/loader.jsx';
 import { getCategoryTotals, getMonthlyTotals, getSummary } from '../api/dashboardApi';
 import { listTransactions } from '../api/transactionApi';
 import { rangeForMode } from '../utils/dateRanges';
@@ -35,9 +35,9 @@ export default function DashboardPage() {
     const topExpense = [...expenseCategories].sort((a,b)=>(b.total||0)-(a.total||0))[0];
     return { latest, latestNet, previousNet, topExpense };
   }, [expenseCategories, monthly]);
-  if (loading) return <div className="grid gap-4"><Skeleton className="h-20" /><div className="grid gap-3 md:grid-cols-4"><Skeleton className="h-32" /><Skeleton className="h-32" /><Skeleton className="h-32" /><Skeleton className="h-32" /></div><Skeleton className="h-96" /></div>;
+  if (loading) return <Loader label="Loading dashboard" className="min-h-[60vh]" />;
   return (
-    <PageShell eyebrow="Command center" title="Financial overview" description="A production view of farm cash flow, category pressure, and recent ledger movement." actions={<DateRangeFilter label="Dashboard date range" rangeMode={rangeMode} dateRange={dateRange} onChange={changeRange} />}>
+    <PageShell eyebrow="Command center" title="Financial overview" description="Cash flow, spending by category, and your latest entries." actions={<DateRangeFilter label="Dashboard date range" rangeMode={rangeMode} dateRange={dateRange} onChange={changeRange} />}>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard tone="income" icon={TrendingUp} label="Total income" value={formatCurrency(summary.totalIncome)} detail="Revenue in range" delta="Inflow" deltaDirection="up" />
         <MetricCard tone="expense" icon={TrendingDown} label="Total expense" value={formatCurrency(summary.totalExpense)} detail="Costs in range" delta="Outflow" deltaDirection="down" />

@@ -1,8 +1,9 @@
-import { Lock, Mail, ShieldCheck, Sprout } from 'lucide-react';
+import { Lock, Mail, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/theme/ThemeToggle.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { APP_NAME, BrandIcon } from '../lib/brand.js';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -29,10 +30,10 @@ export default function LoginPage() {
   return (
     <main className="auth-page">
       <div className="auth-shell">
-        <section className="auth-hero" aria-label="Farm Accounts overview">
-          <div className="auth-brand"><span className="brand-mark"><Sprout /></span> Farm Accounts</div>
+        <section className="auth-hero" aria-label={`${APP_NAME} overview`}>
+          <div className="auth-brand"><span className="brand-mark"><BrandIcon /></span> {APP_NAME}</div>
           <div>
-            <p className="eyebrow">Farm finance dashboard</p>
+            <p className="eyebrow">Finance dashboard</p>
             <h1>Command income, expenses, categories, and access keys in one calm workspace.</h1>
           </div>
           <div className="auth-proof">

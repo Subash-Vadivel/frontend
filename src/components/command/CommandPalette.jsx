@@ -3,8 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalSearch } from '../../hooks/useGlobalSearch.js';
 import { Badge } from '../ui/badge.jsx';
+import { Loader } from '../ui/loader.jsx';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog.jsx';
 import { Input } from '../ui/input.jsx';
+import { APP_NAME } from '../../lib/brand.js';
 
 export default function CommandPalette({ open, onOpenChange }) {
   const navigate = useNavigate();
@@ -23,11 +25,11 @@ export default function CommandPalette({ open, onOpenChange }) {
         <DialogHeader className="sr-only"><DialogTitle>Command search</DialogTitle><DialogDescription>Search pages, transactions, categories, and MCP keys.</DialogDescription></DialogHeader>
         <div className="flex items-center border-b px-3">
           <Search className="mr-2 h-4 w-4 text-muted-foreground" />
-          <Input className="h-12 border-0 px-0 text-sm shadow-none focus-visible:ring-0" autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search Farm Accounts..." />
+          <Input className="h-12 border-0 px-0 text-sm shadow-none focus-visible:ring-0" autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${APP_NAME}...`} />
         </div>
         <div className="max-h-[420px] overflow-auto p-2">
           {error && <div className="mb-2 rounded-md border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">{error}</div>}
-          {loading && <div className="p-6 text-center text-xs text-muted-foreground">Indexing app data...</div>}
+          {loading && <Loader label="Indexing app data" className="min-h-0 py-6" />}
           {!loading && results.length === 0 && <div className="p-8 text-center text-xs text-muted-foreground">No results found.</div>}
           {!loading && results.map((result) => {
             const Icon = result.icon;

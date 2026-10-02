@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
+import { Loader } from '../ui/loader.jsx';
 
 const businessOnboardingPaths = new Set(['/businesses/select', '/businesses/new']);
 
@@ -9,7 +10,7 @@ export default function ProtectedRoute() {
   const { selectedBusiness, loading: businessLoading } = useBusiness();
   const location = useLocation();
 
-  if (authLoading || (isAuthenticated && businessLoading)) return <div className="page-loader">Loading...</div>;
+  if (authLoading || (isAuthenticated && businessLoading)) return <Loader fullScreen />;
   if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
   if (!selectedBusiness && !businessOnboardingPaths.has(location.pathname)) {
     return <Navigate to="/businesses/select" replace />;

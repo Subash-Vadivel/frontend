@@ -16,7 +16,7 @@ import { rangeForMode } from '../utils/dateRanges';
 import ConfirmDialog from '../components/modals/ConfirmDialog.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Input } from '../components/ui/input.jsx';
-import { Skeleton } from '../components/ui/skeleton.jsx';
+import { Loader } from '../components/ui/loader.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 
 export default function TransactionManager({ type, title }) {
@@ -52,7 +52,7 @@ export default function TransactionManager({ type, title }) {
       <div className="grid gap-3 md:grid-cols-3"><MetricCard label="Total value" value={formatCurrency(stats.total)} detail="Across current view" tone={type === 'income' ? 'income' : 'expense'} /><MetricCard label="Average record" value={formatCurrency(stats.avg)} detail="Mean transaction size" /><MetricCard label="Categories used" value={stats.categoriesUsed} detail={`${categories.length} configured`} /></div>
       <DataPanel title={`${title} ledger`} description={`${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} loaded. Press / to search this table.`} action={<div className="relative w-full sm:w-72"><Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" /><Input ref={searchRef} className="pl-8" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search ledger..." /></div>}>
         {error && <p className="mb-3 rounded-md border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
-        {loading ? <Skeleton className="h-72" /> : <TransactionTable entries={entries} query={query} onView={setSelectedEntry} onDelete={setDeleteTargetId} canDelete={canWriteFinance} />}
+        {loading ? <Loader className="min-h-72" /> : <TransactionTable entries={entries} query={query} onView={setSelectedEntry} onDelete={setDeleteTargetId} canDelete={canWriteFinance} />}
       </DataPanel>
       {canWriteFinance && createModalOpen && <TransactionCreateModal type={type} categories={categories} onClose={() => setCreateModalOpen(false)} onSubmit={submit} />}
       {customModalOpen && <DateRangeModal initialRange={dateRange} onApply={applyCustomRange} onClose={() => setCustomModalOpen(false)} />}

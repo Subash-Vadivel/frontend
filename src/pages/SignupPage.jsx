@@ -1,8 +1,9 @@
-import { Lock, Mail, ShieldCheck, Sprout, User } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signup } from '../api/authApi';
 import ThemeToggle from '../components/theme/ThemeToggle.jsx';
+import { APP_NAME, BrandIcon } from '../lib/brand.js';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -27,11 +28,11 @@ export default function SignupPage() {
   return (
     <main className="auth-page">
       <div className="auth-shell">
-        <section className="auth-hero" aria-label="Farm Accounts overview">
-          <div className="auth-brand"><span className="brand-mark"><Sprout /></span> Farm Accounts</div>
+        <section className="auth-hero" aria-label={`${APP_NAME} overview`}>
+          <div className="auth-brand"><span className="brand-mark"><BrandIcon /></span> {APP_NAME}</div>
           <div>
             <p className="eyebrow">Start organized</p>
-            <h1>Build a focused finance workspace for every rupee moving through the farm.</h1>
+            <h1>Build a focused finance workspace for every rupee your business moves.</h1>
           </div>
           <div className="auth-proof">
             <ShieldCheck size={18} />

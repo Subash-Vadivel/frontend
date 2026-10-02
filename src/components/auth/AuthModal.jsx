@@ -1,4 +1,4 @@
-import { Lock, Mail, Sprout, User } from 'lucide-react';
+import { Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
 import { signup } from '../../api/authApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -6,6 +6,7 @@ import { Button } from '../ui/button.jsx';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog.jsx';
 import { Input } from '../ui/input.jsx';
 import { Label } from '../ui/label.jsx';
+import { APP_NAME, BrandIcon } from '../../lib/brand.js';
 
 function AuthField({ icon: Icon, label, children }) {
   return (
@@ -34,7 +35,7 @@ export default function AuthModal({ mode, onClose, onModeChange, onSuccess }) {
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold"><span className="flex h-8 w-8 items-center justify-center rounded-lg border"><Sprout className="h-4 w-4 text-primary" /></span> Farm Accounts</div>
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold"><span className="flex h-8 w-8 items-center justify-center rounded-lg border"><BrandIcon className="h-4 w-4 text-primary" /></span> {APP_NAME}</div>
           <DialogDescription>{isSignup ? 'Create workspace' : 'Welcome back'}</DialogDescription>
           <DialogTitle>{isSignup ? 'Sign up' : 'Login'}</DialogTitle>
         </DialogHeader>
@@ -42,7 +43,7 @@ export default function AuthModal({ mode, onClose, onModeChange, onSuccess }) {
         {isSignup ? (
           <form className="grid gap-4" onSubmit={submitSignup}>
             <AuthField icon={User} label="Name"><Input className="pl-9" value={signupForm.name} onChange={(event) => setSignupForm({ ...signupForm, name: event.target.value })} placeholder="Your name" required /></AuthField>
-            <AuthField icon={Mail} label="Email"><Input className="pl-9" type="email" value={signupForm.email} onChange={(event) => setSignupForm({ ...signupForm, email: event.target.value })} placeholder="you@farm.com" required /></AuthField>
+            <AuthField icon={Mail} label="Email"><Input className="pl-9" type="email" value={signupForm.email} onChange={(event) => setSignupForm({ ...signupForm, email: event.target.value })} placeholder="you@example.com" required /></AuthField>
             <AuthField icon={Lock} label="Password"><Input className="pl-9" type="password" minLength="8" value={signupForm.password} onChange={(event) => setSignupForm({ ...signupForm, password: event.target.value })} placeholder="Create an 8+ character password" required /></AuthField>
             {error && <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create account'}</Button>
@@ -50,7 +51,7 @@ export default function AuthModal({ mode, onClose, onModeChange, onSuccess }) {
           </form>
         ) : (
           <form className="grid gap-4" onSubmit={submitLogin}>
-            <AuthField icon={Mail} label="Email"><Input className="pl-9" type="email" value={loginForm.email} onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })} placeholder="you@farm.com" required /></AuthField>
+            <AuthField icon={Mail} label="Email"><Input className="pl-9" type="email" value={loginForm.email} onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })} placeholder="you@example.com" required /></AuthField>
             <AuthField icon={Lock} label="Password"><Input className="pl-9" type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} placeholder="Enter your password" required /></AuthField>
             {error && <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>

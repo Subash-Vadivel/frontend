@@ -8,6 +8,7 @@ import ThemeToggle from '../theme/ThemeToggle.jsx';
 import { Avatar, AvatarFallback } from '../ui/avatar.jsx';
 import { Button } from '../ui/button.jsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.jsx';
+import { APP_NAME } from '../../lib/brand.js';
 
 const pageNames = {
   '/dashboard': 'Dashboard',
@@ -24,7 +25,7 @@ export default function AppTopbar({ onMenuClick }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [commandOpen, setCommandOpen] = useState(false);
-  const pageTitle = useMemo(() => pageNames[location.pathname] || 'Farm Accounts', [location.pathname]);
+  const pageTitle = useMemo(() => pageNames[location.pathname] || APP_NAME, [location.pathname]);
   const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
   useEffect(() => {
     const handler = (event) => {

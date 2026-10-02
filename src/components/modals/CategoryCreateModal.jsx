@@ -29,7 +29,7 @@ export default function CategoryCreateModal({ onClose, onSubmit }) {
         <DialogHeader><DialogDescription>New category</DialogDescription><DialogTitle>Add category</DialogTitle></DialogHeader>
         <form className="grid gap-4" onSubmit={submit}>
           <Tabs value={type} onValueChange={setType}><TabsList className="grid w-full grid-cols-2"><TabsTrigger value="income">Income</TabsTrigger><TabsTrigger value="expense">Expense</TabsTrigger></TabsList></Tabs>
-          <div className="grid gap-2"><Label>Category name</Label><Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Crop sale" required /></div>
+          <div className="grid gap-2"><Label>Category name</Label><Input value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Sales, Rent, Utilities" required /></div>
           <div className="grid gap-3 rounded-lg border border-dashed bg-muted/30 p-4">
             <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-medium">Custom fields</h3><Button type="button" variant="outline" size="sm" onClick={addCustomField}><Plus /> Add field</Button></div>
             {customFields.map((field, index) => (

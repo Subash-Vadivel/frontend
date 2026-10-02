@@ -1,4 +1,4 @@
-import { BarChart3, ChevronsLeftRight, FolderTree, KeyRound, LogOut, ReceiptText, Sprout, Users, WalletCards, X } from 'lucide-react';
+import { BarChart3, ChevronsLeftRight, FolderTree, KeyRound, LogOut, ReceiptText, Users, WalletCards, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from '../ui/avatar.jsx';
 import { Badge } from '../ui/badge.jsx';
 import { Button } from '../ui/button.jsx';
 import { Separator } from '../ui/separator.jsx';
+import { APP_NAME, BrandIcon } from '../../lib/brand.js';
 
 export default function Navbar({ mobileOpen = false, onMobileOpenChange = () => {} }) {
   const { user, logout } = useAuth();
@@ -28,8 +29,8 @@ export default function Navbar({ mobileOpen = false, onMobileOpenChange = () => 
   const content = (
     <aside className={cn('flex h-full flex-col bg-background p-2 transition-all lg:sticky lg:top-0 lg:h-screen lg:border-r', collapsed ? 'lg:w-[68px]' : 'lg:w-[248px]')}>
       <div className="flex h-10 items-center gap-2 px-1">
-        <button className="flex h-8 w-8 items-center justify-center rounded-md border bg-background" type="button" onClick={() => navigate('/dashboard')} aria-label="Farm Accounts"><Sprout className="h-4 w-4 text-primary" /></button>
-        {!collapsed && <div className="min-w-0"><div className="truncate text-[13px] font-semibold">Farm Accounts</div><div className="truncate text-[11px] text-muted-foreground">{selectedBusiness?.name || 'Select business'}</div></div>}
+        <button className="flex h-8 w-8 items-center justify-center rounded-md border bg-background" type="button" onClick={() => navigate('/dashboard')} aria-label={APP_NAME}><BrandIcon className="h-4 w-4 text-primary" /></button>
+        {!collapsed && <div className="min-w-0"><div className="truncate text-[13px] font-semibold">{APP_NAME}</div><div className="truncate text-[11px] text-muted-foreground">{selectedBusiness?.name || 'Select business'}</div></div>}
         <Button className="ml-auto lg:hidden" variant="ghost" size="icon" type="button" onClick={() => onMobileOpenChange(false)} aria-label="Close navigation"><X /></Button>
       </div>
       <Separator className="my-2" />
