@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pie, PieChart, Sector } from 'recharts';
 import { useChartTheme } from '../../hooks/useChartTheme.js';
 import { cn } from '../../lib/utils.js';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip.jsx';
 import DataPanel from '../layout/DataPanel.jsx';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -70,20 +71,29 @@ export default function CategoryPieChart({ title, data }) {
               <span className="mt-0.5 text-[11px] tabular-nums text-muted-foreground">{active ? formatPercent(active.value, total) : `${slices.length} ${slices.length === 1 ? 'category' : 'categories'}`}</span>
             </div>
           </div>
-          <ul className="grid w-full min-w-0 gap-1" onMouseLeave={() => setActiveIndex(null)}>
-            {slices.map((slice, index) => (
-              <li
-                key={slice.name}
-                onMouseEnter={() => setActiveIndex(index)}
-                className={cn('flex cursor-default items-center gap-2.5 rounded-md px-2 py-1.5 text-xs transition-[background-color,opacity] duration-200', activeIndex === index && 'bg-muted/60', activeIndex != null && activeIndex !== index && 'opacity-50')}
-              >
-                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: slice.fill }} />
-                <span className="min-w-0 flex-1 truncate">{slice.name}</span>
-                <span className="font-medium tabular-nums">{formatCurrency(slice.value)}</span>
-                <span className="w-12 text-right tabular-nums text-muted-foreground">{formatPercent(slice.value, total)}</span>
-              </li>
-            ))}
-          </ul>
+          <TooltipProvider delayDuration={150}>
+            <ul className="grid w-full min-w-0 gap-1 sm:w-auto sm:flex-1" onMouseLeave={() => setActiveIndex(null)}>
+              {slices.map((slice, index) => (
+                <Tooltip key={slice.name}>
+                  <TooltipTrigger asChild>
+                    <li
+                      onMouseEnter={() => setActiveIndex(index)}
+                      className={cn('flex min-w-0 cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-[background-color,opacity] duration-200', activeIndex === index && 'bg-muted/60', activeIndex != null && activeIndex !== index && 'opacity-50')}
+                    >
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: slice.fill }} />
+                      <span className="min-w-0 flex-1 truncate">{slice.name}</span>
+                      <span className="max-w-[45%] shrink-0 truncate font-medium tabular-nums">{formatCurrency(slice.value)}</span>
+                      <span className="w-11 shrink-0 text-right tabular-nums text-muted-foreground">{formatPercent(slice.value, total)}</span>
+                    </li>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" align="start" className="max-w-xs">
+                    <div className="flex items-center gap-2 font-medium"><span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: slice.fill }} /><span className="break-words">{slice.name}</span></div>
+                    <div className="mt-0.5 tabular-nums text-muted-foreground">{formatCurrency(slice.value)} · {formatPercent(slice.value, total)}</div>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </ul>
+          </TooltipProvider>
         </div>
       ) : <div className="rounded-lg border border-dashed bg-muted/20 p-8 text-center text-xs text-muted-foreground">No data yet.</div>}
     </DataPanel>

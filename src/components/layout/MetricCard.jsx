@@ -12,7 +12,7 @@ export default function MetricCard({ label, value, detail, icon: Icon, tone = 'n
       <CardContent className="p-4">
         <div className="mb-4 flex items-center justify-between gap-3">
           <span className="text-xs font-medium text-muted-foreground">{label}</span>
-          <span className={cn('flex h-7 w-7 items-center justify-center rounded-md', toneStyles[tone] || toneStyles.neutral)}>{Icon && <Icon className="h-3.5 w-3.5" />}</span>
+          {Icon && <span className={cn('flex h-7 w-7 items-center justify-center rounded-md', toneStyles[tone] || toneStyles.neutral)}><Icon className="h-3.5 w-3.5" /></span>}
         </div>
         <strong className="block truncate text-2xl font-semibold tracking-tight text-foreground">{value}</strong>
         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
