@@ -37,11 +37,15 @@ export function AuthProvider({ children }) {
     };
   }, [token]);
 
+  const loginWithToken = (accessToken) => {
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    setToken(accessToken);
+    setLoading(true);
+  };
+
   const login = async (credentials) => {
     const response = await loginRequest(credentials);
-    localStorage.setItem(TOKEN_KEY, response.access_token);
-    setToken(response.access_token);
-    setLoading(true);
+    loginWithToken(response.access_token);
   };
 
   const logout = () => {
@@ -52,7 +56,7 @@ export function AuthProvider({ children }) {
   };
 
   const value = useMemo(
-    () => ({ user, token, loading, isAuthenticated: Boolean(token), login, logout }),
+    () => ({ user, token, loading, isAuthenticated: Boolean(token), login, loginWithToken, logout }),
     [user, token, loading],
   );
 

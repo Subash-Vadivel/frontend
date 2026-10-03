@@ -10,7 +10,9 @@ import IncomePage from './pages/IncomePage.jsx';
 import InvitationAcceptPage from './pages/InvitationAcceptPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import McpPage from './pages/McpPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
+import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
       <Route path="/login" element={<LandingPage initialAuthMode="login" />} />
       <Route path="/signup" element={<LandingPage initialAuthMode="signup" />} />
       <Route path="/invitations/:token" element={<InvitationAcceptPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/businesses/select" element={<BusinessSelectPage />} />
         <Route path="/businesses/new" element={<BusinessCreatePage />} />
