@@ -1,7 +1,11 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { cn } from '../../lib/utils.js';
 
-export const DropdownMenu = DropdownMenuPrimitive.Root;
+// Non-modal: menus here open dialogs (Edit, Delete). A modal menu locks <body> pointer events while
+// the dialog opens, which can leave the page unclickable after the dialog closes.
+export function DropdownMenu({ modal = false, ...props }) {
+  return <DropdownMenuPrimitive.Root modal={modal} {...props} />;
+}
 export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
 export function DropdownMenuContent({ className, sideOffset = 4, align = 'end', ...props }) {
