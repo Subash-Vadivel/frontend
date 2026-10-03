@@ -14,7 +14,7 @@ import { getErrorMessage } from '../lib/utils.js';
 const formatUpdated = (value) => new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(`${value}Z`));
 
 export default function ReportsPage() {
-  const { canWriteFinance, selectedBusinessId } = useBusiness();
+  const { canWriteFinance, selectedBusinessId, wsPath } = useBusiness();
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ export default function ReportsPage() {
   const submitForm = async (payload) => {
     if (formTarget === 'new') {
       const report = await createReport(payload);
-      navigate(`/reports/${report.id}`);
+      navigate(wsPath(`/reports/${report.id}`));
       return;
     }
     await updateReport(formTarget.id, payload);
@@ -53,7 +53,7 @@ export default function ReportsPage() {
       {loading ? <Loader className="min-h-72" /> : reports.length ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {reports.map((report) => (
-            <Card key={report.id} className="group flex cursor-pointer flex-col gap-3 bg-background p-4 transition-colors hover:border-primary/40" onClick={() => navigate(`/reports/${report.id}`)}>
+            <Card key={report.id} className="group flex cursor-pointer flex-col gap-3 bg-background p-4 transition-colors hover:border-primary/40" onClick={() => navigate(wsPath(`/reports/${report.id}`))}>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border"><ChartNoAxesCombined className="h-4 w-4 text-primary" /></span><h3 className="truncate text-sm font-semibold">{report.name}</h3></div>
                 {canWriteFinance && (

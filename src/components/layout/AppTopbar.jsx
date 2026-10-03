@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from '../ui/avatar.jsx';
 import { Button } from '../ui/button.jsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.jsx';
 import { APP_NAME } from '../../lib/brand.js';
+import { stripWorkspace, workspacePath } from '../../lib/workspace.js';
 
 const pageNames = {
   '/dashboard': 'Dashboard',
@@ -23,11 +24,14 @@ const pageNames = {
 
 export default function AppTopbar({ onMenuClick }) {
   const { user } = useAuth();
-  const { businesses, selectedBusiness, selectedBusinessId, selectBusiness, canWriteFinance } = useBusiness();
+  const { businesses, selectedBusiness, selectedBusinessId, canWriteFinance, wsPath } = useBusiness();
   const navigate = useNavigate();
   const location = useLocation();
   const [commandOpen, setCommandOpen] = useState(false);
-  const pageTitle = useMemo(() => pageNames[location.pathname] || (location.pathname.startsWith('/reports/') ? 'Report' : APP_NAME), [location.pathname]);
+  const pageTitle = useMemo(() => {
+    const path = stripWorkspace(location.pathname);
+    return pageNames[path] || (path.startsWith('/reports/') ? 'Report' : APP_NAME);
+  }, [location.pathname]);
   const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
   useEffect(() => {
     const handler = (event) => {
@@ -39,8 +43,8 @@ export default function AppTopbar({ onMenuClick }) {
   }, []);
   const switchBusiness = (value) => {
     if (value === '__new__') { navigate('/businesses/new'); return; }
-    selectBusiness(value);
-    navigate('/dashboard');
+    // WorkspaceRoute selects the workspace from the URL.
+    navigate(workspacePath(value, '/dashboard'));
   };
   return (
     <>
@@ -52,8 +56,8 @@ export default function AppTopbar({ onMenuClick }) {
           <Search className="h-3.5 w-3.5" /><span className="truncate">Search pages, ledgers, categories...</span><kbd className="ml-auto hidden rounded border bg-background px-1.5 py-0.5 font-mono text-[10px] sm:block">⌘K</kbd>
         </button>
         <div className="flex items-center gap-2">
-          {canWriteFinance && <Button type="button" variant="outline" size="sm" onClick={() => navigate('/income?action=create')}><Plus /> Income</Button>}
-          {canWriteFinance && <Button className="hidden sm:inline-flex" type="button" variant="outline" size="sm" onClick={() => navigate('/expenses?action=create')}><Plus /> Expense</Button>}
+          {canWriteFinance && <Button type="button" variant="outline" size="sm" onClick={() => navigate(wsPath('/income?action=create'))}><Plus /> Income</Button>}
+          {canWriteFinance && <Button className="hidden sm:inline-flex" type="button" variant="outline" size="sm" onClick={() => navigate(wsPath('/expenses?action=create'))}><Plus /> Expense</Button>}
           <ThemeToggle compact />
           <Avatar className="h-8 w-8"><AvatarFallback>{initial}</AvatarFallback></Avatar>
         </div>

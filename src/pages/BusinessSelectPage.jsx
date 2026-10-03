@@ -7,6 +7,7 @@ import { Loader } from '../components/ui/loader.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
 import { APP_NAME, BrandIcon } from '../lib/brand.js';
 import { cn } from '../lib/utils.js';
+import { workspacePath } from '../lib/workspace.js';
 
 const roleLabels = { owner: 'Owner', admin: 'Admin', manager: 'Manager', viewer: 'Viewer' };
 const roleVariants = { owner: 'default', admin: 'balance', manager: 'income', viewer: 'secondary' };
@@ -27,7 +28,7 @@ export default function BusinessSelectPage() {
   const navigate = useNavigate();
   const enterBusiness = (businessId) => {
     selectBusiness(businessId);
-    navigate('/dashboard', { replace: true });
+    navigate(workspacePath(businessId), { replace: true });
   };
   const createNew = () => navigate('/businesses/new');
 

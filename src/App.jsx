@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
-import AppLayout from './components/layout/AppLayout.jsx';
+import LegacyWorkspaceRedirect from './components/auth/LegacyWorkspaceRedirect.jsx';
+import WorkspaceRoute from './components/auth/WorkspaceRoute.jsx';
 import BusinessCreatePage from './pages/BusinessCreatePage.jsx';
 import BusinessSelectPage from './pages/BusinessSelectPage.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
@@ -17,6 +18,8 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 
+const LEGACY_WORKSPACE_PATHS = ['/dashboard', '/reports', '/reports/:reportId', '/income', '/expenses', '/categories', '/mcp', '/users', '/settings'];
+
 export default function App() {
   return (
     <Routes>
@@ -29,17 +32,19 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/businesses/select" element={<BusinessSelectPage />} />
         <Route path="/businesses/new" element={<BusinessCreatePage />} />
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/reports/:reportId" element={<ReportDetailPage />} />
-          <Route path="/income" element={<IncomePage />} />
-          <Route path="/expenses" element={<ExpensePage />} />
-          <Route path="/categories" element={<CategoryPage />} />
-          <Route path="/mcp" element={<McpPage />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/w/:businessId" element={<WorkspaceRoute />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="reports/:reportId" element={<ReportDetailPage />} />
+          <Route path="income" element={<IncomePage />} />
+          <Route path="expenses" element={<ExpensePage />} />
+          <Route path="categories" element={<CategoryPage />} />
+          <Route path="mcp" element={<McpPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
+        {LEGACY_WORKSPACE_PATHS.map((path) => <Route key={path} path={path} element={<LegacyWorkspaceRedirect />} />)}
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

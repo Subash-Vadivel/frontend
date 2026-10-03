@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Input } from '../components/ui/input.jsx';
 import { Label } from '../components/ui/label.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
+import { workspacePath } from '../lib/workspace.js';
 
 export default function BusinessCreatePage() {
   const { createBusiness } = useBusiness();
@@ -19,8 +20,8 @@ export default function BusinessCreatePage() {
     event.preventDefault();
     setSaving(true); setError('');
     try {
-      await createBusiness({ name, legalName: legalName || null });
-      navigate('/dashboard', { replace: true });
+      const business = await createBusiness({ name, legalName: legalName || null });
+      navigate(workspacePath(business.id), { replace: true });
     } catch (err) {
       setError(err.response?.data?.detail || 'Unable to create business');
     } finally { setSaving(false); }

@@ -85,7 +85,6 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
   const [rangeMode, setRangeMode] = useState(initial?.dateRange?.mode || 'report');
   const [customRange, setCustomRange] = useState({ startDate: initial?.dateRange?.startDate || '', endDate: initial?.dateRange?.endDate || '' });
   const [series, setSeries] = useState(initial?.series?.length ? initial.series.map((s) => ({ ...s, label: s.label || '' })) : [blankSeries()]);
-  const [width, setWidth] = useState(widget?.width || 'half');
   const [preview, setPreview] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState('');
@@ -131,7 +130,7 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
     setSaving(true);
     try {
       const fallbackTitle = preview?.series?.[0]?.label || 'Untitled widget';
-      await onSave({ title: title.trim() || fallbackTitle, chartType, config, width });
+      await onSave({ title: title.trim() || fallbackTitle, chartType, config });
     } catch (err) { setError(getErrorMessage(err, 'Unable to save widget')); setSaving(false); }
   };
 
@@ -190,7 +189,6 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
                 </div>
               )}
             </div>
-            <div className="grid gap-1.5"><Label>Width</Label><Segmented options={[{ value: 'half', label: 'Half width' }, { value: 'full', label: 'Full width' }]} value={width} onChange={setWidth} /></div>
           </div>
           <div className="grid content-start gap-2 rounded-lg border bg-muted/10 p-3">
             <div className="flex items-center justify-between"><span className="text-xs font-medium">Preview</span>{previewLoading && <span className="text-[11px] text-muted-foreground">Updating...</span>}</div>

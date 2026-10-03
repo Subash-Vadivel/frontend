@@ -1,14 +1,16 @@
 import { ArrowLeft, ChartNoAxesCombined, Pencil, Plus } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { listAllCategories } from '../api/categoryApi';
-import { createWidget, deleteWidget, getReport, reorderWidgets, updateReport, updateWidget } from '../api/reportApi';
+import { createWidget, deleteWidget, getReport, saveReportLayout, updateReport, updateWidget } from '../api/reportApi';
 import DateRangeFilter from '../components/filters/DateRangeFilter.jsx';
 import PageShell from '../components/layout/PageShell.jsx';
 import ConfirmDialog from '../components/modals/ConfirmDialog.jsx';
 import DateRangeModal from '../components/modals/DateRangeModal.jsx';
 import ReportFormModal from '../components/reports/ReportFormModal.jsx';
 import WidgetBuilderModal from '../components/reports/WidgetBuilderModal.jsx';
+import ReportGrid from '../components/reports/ReportGrid.jsx';
 import WidgetCard from '../components/reports/WidgetCard.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Loader } from '../components/ui/loader.jsx';
@@ -17,6 +19,7 @@ import { getErrorMessage } from '../lib/utils.js';
 import { rangeForMode } from '../utils/dateRanges';
 
 const rangeStorageKey = (reportId) => `ledgerline_report_range_${reportId}`;
+
 
 // The report-level filter is a per-viewer preference, remembered per report in this browser.
 const loadSavedRange = (reportId) => {
@@ -31,7 +34,7 @@ const loadSavedRange = (reportId) => {
 export default function ReportDetailPage() {
   const { reportId } = useParams();
   const navigate = useNavigate();
-  const { canWriteFinance } = useBusiness();
+  const { canWriteFinance, wsPath } = useBusiness();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,28 +71,32 @@ export default function ReportDetailPage() {
     } finally { setCategoriesLoading(false); }
   };
 
-  const widgets = report?.widgets || [];
-  const replaceWidget = (next) => setReport((current) => ({ ...current, widgets: current.widgets.map((w) => (w.id === next.id ? next : w)) }));
+  const widgets = useMemo(() => report?.widgets || [], [report]);
   const saveWidget = async (payload) => {
     if (builderTarget === 'new') {
       const created = await createWidget(reportId, payload);
       setReport((current) => ({ ...current, widgets: [...current.widgets, created] }));
     } else {
-      replaceWidget(await updateWidget(reportId, builderTarget.id, payload));
+      const updated = await updateWidget(reportId, builderTarget.id, payload);
+      setReport((current) => ({ ...current, widgets: current.widgets.map((w) => (w.id === updated.id ? updated : w)) }));
     }
     setBuilderTarget(null);
   };
-  const duplicate = async (widget) => {
-    const created = await createWidget(reportId, { title: `${widget.title} (copy)`.slice(0, 120), chartType: widget.chartType, config: widget.config, width: widget.width });
-    setReport((current) => ({ ...current, widgets: [...current.widgets, created] }));
+  // changed: [{ id, x, y, w, h }] from ReportGrid; applied right away, reverted if the save fails.
+  const saveLayout = async (changed) => {
+    const previous = report;
+    const next = Object.fromEntries(changed.map(({ id, ...rest }) => [id, rest]));
+    setReport((r) => ({ ...r, widgets: r.widgets.map((w) => (next[w.id] ? { ...w, layout: next[w.id] } : w)) }));
+    try { await saveReportLayout(reportId, changed); }
+    catch (err) { setReport(previous); toast.error(getErrorMessage(err, 'Could not save the layout')); }
   };
-  const move = async (index, direction) => {
-    const next = [...widgets];
-    [next[index], next[index + direction]] = [next[index + direction], next[index]];
-    setReport((current) => ({ ...current, widgets: next }));
-    try { await reorderWidgets(reportId, next.map((w) => w.id)); } catch { load(); }
+  const clone = async (widget) => {
+    try {
+      const created = await createWidget(reportId, { title: `${widget.title} (copy)`.slice(0, 120), chartType: widget.chartType, config: widget.config });
+      setReport((current) => ({ ...current, widgets: [...current.widgets, created] }));
+      toast.success('Widget cloned');
+    } catch (err) { toast.error(getErrorMessage(err, 'Unable to clone widget')); }
   };
-  const toggleWidth = async (widget) => replaceWidget(await updateWidget(reportId, widget.id, { width: widget.width === 'full' ? 'half' : 'full' }));
   const removeWidget = async () => {
     setDeleting(true);
     try {
@@ -109,36 +116,35 @@ export default function ReportDetailPage() {
     return (
       <div className="grid place-items-center gap-3 rounded-lg border border-dashed bg-muted/20 p-12 text-center">
         <p className="text-sm font-medium">{error || 'Report not found'}</p>
-        <Button type="button" variant="outline" onClick={() => navigate('/reports')}><ArrowLeft /> Back to reports</Button>
+        <Button type="button" variant="outline" onClick={() => navigate(wsPath('/reports'))}><ArrowLeft /> Back to reports</Button>
       </div>
     );
   }
 
   return (
     <PageShell
-      eyebrow={<button type="button" className="inline-flex items-center gap-1 hover:text-foreground" onClick={() => navigate('/reports')}><ArrowLeft className="h-3 w-3" /> Reports</button>}
+      eyebrow={<button type="button" className="inline-flex items-center gap-1 hover:text-foreground" onClick={() => navigate(wsPath('/reports'))}><ArrowLeft className="h-3 w-3" /> Reports</button>}
       title={<span className="inline-flex items-center gap-2">{report.name}{canWriteFinance && <Button type="button" variant="ghost" size="icon" className="h-7 w-7" title="Rename report" onClick={() => setRenameOpen(true)}><Pencil /></Button>}</span>}
       description={report.description}
       actions={<><DateRangeFilter label="Report date range" rangeMode={rangeMode} dateRange={reportRange} onChange={changeRange} />{canWriteFinance && <Button type="button" onClick={() => openBuilder('new')}><Plus /> New widget</Button>}</>}
     >
       {widgets.length ? (
-        <div className="grid gap-3 lg:grid-cols-2">
-          {widgets.map((widget, index) => (
+        <ReportGrid
+          widgets={widgets}
+          canEdit={canWriteFinance}
+          onLayoutSave={saveLayout}
+          renderWidget={(widget, canDrag) => (
             <WidgetCard
-              key={widget.id}
               widget={widget}
               reportRange={reportRange}
               canEdit={canWriteFinance}
-              isFirst={index === 0}
-              isLast={index === widgets.length - 1}
+              canDrag={canDrag}
               onEdit={() => openBuilder(widget)}
-              onDuplicate={() => duplicate(widget)}
-              onMove={(direction) => move(index, direction)}
-              onToggleWidth={() => toggleWidth(widget)}
+              onClone={() => clone(widget)}
               onDelete={() => setDeleteTarget(widget)}
             />
-          ))}
-        </div>
+          )}
+        />
       ) : (
         <div className="grid place-items-center gap-3 rounded-lg border border-dashed bg-muted/20 p-12 text-center">
           <ChartNoAxesCombined className="h-6 w-6 text-muted-foreground" />

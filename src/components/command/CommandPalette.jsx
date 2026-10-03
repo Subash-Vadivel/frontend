@@ -1,6 +1,7 @@
 import { Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useGlobalSearch } from '../../hooks/useGlobalSearch.js';
 import { Badge } from '../ui/badge.jsx';
 import { Loader } from '../ui/loader.jsx';
@@ -10,6 +11,7 @@ import { APP_NAME } from '../../lib/brand.js';
 
 export default function CommandPalette({ open, onOpenChange }) {
   const navigate = useNavigate();
+  const { wsPath } = useBusiness();
   const { load, search, loading, error, total } = useGlobalSearch();
   const [query, setQuery] = useState('');
   useEffect(() => { if (open) load(); }, [load, open]);
@@ -17,7 +19,7 @@ export default function CommandPalette({ open, onOpenChange }) {
   const results = useMemo(() => search(query), [query, search]);
   const go = (to) => {
     onOpenChange(false);
-    navigate(to);
+    navigate(wsPath(to));
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

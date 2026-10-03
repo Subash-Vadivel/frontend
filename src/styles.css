@@ -55,3 +55,13 @@ body { margin:0; min-width:320px; min-height:100vh; background:hsl(var(--backgro
 button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inherit}.recharts-tooltip-wrapper{outline:none}
 .overflow-wrap-anywhere { overflow-wrap: anywhere; }
 ::selection { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+
+/* Report grid (react-grid-layout): match the app theme. */
+.react-grid-item.react-grid-placeholder {
+  background: hsl(var(--primary));
+  opacity: 0.12;
+  border-radius: 0.5rem;
+}
+.dark .react-grid-item > .react-resizable-handle::after {
+  border-color: hsl(var(--muted-foreground));
+}

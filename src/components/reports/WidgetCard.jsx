@@ -1,15 +1,19 @@
-import { ArrowDown, ArrowUp, CalendarRange, Columns2, Copy, Pencil, RectangleHorizontal, Trash2 } from 'lucide-react';
+import { CalendarRange, Copy, GripVertical, Loader2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { queryWidget } from '../../api/reportApi';
 import { getErrorMessage } from '../../lib/utils.js';
 import { Badge } from '../ui/badge.jsx';
 import { Button } from '../ui/button.jsx';
 import { Card } from '../ui/card.jsx';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu.jsx';
 import { Loader } from '../ui/loader.jsx';
 import ReportChart from './ReportChart.jsx';
 import { INTERVALS, PIE_TYPES, effectiveRange } from './reportUtils.js';
 
-export default function WidgetCard({ widget, reportRange, canEdit, isFirst, isLast, onEdit, onDuplicate, onMove, onToggleWidth, onDelete }) {
+// Must match the grid's dragConfig.handle in ReportDetailPage.
+export const DRAG_HANDLE_CLASS = 'widget-drag-handle';
+
+export default function WidgetCard({ widget, reportRange, canEdit, canDrag, onEdit, onClone, onDelete }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,12 +34,16 @@ export default function WidgetCard({ widget, reportRange, canEdit, isFirst, isLa
 
   const ownRange = widget.config.dateRange?.mode === 'custom';
   const intervalLabel = INTERVALS.find((i) => i.value === widget.config.interval)?.label;
-  const action = (Icon, title, onClick, props = {}) => <Button type="button" variant="ghost" size="icon" className="h-7 w-7" title={title} onClick={onClick} {...props}><Icon /></Button>;
 
   return (
-    <Card className={`flex flex-col overflow-hidden bg-background ${widget.width === 'full' ? 'lg:col-span-2' : ''}`}>
-      <div className="flex items-start justify-between gap-2 border-b bg-muted/15 px-4 py-3">
-        <div className="min-w-0">
+    <Card className="flex h-full flex-col overflow-hidden bg-background">
+      <div className="group flex items-start gap-1.5 border-b bg-muted/15 px-2 py-2.5">
+        {canDrag ? (
+          <span className={`${DRAG_HANDLE_CLASS} mt-0.5 flex h-6 w-5 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-accent active:cursor-grabbing group-hover:opacity-100`} title="Drag to move">
+            <GripVertical className="h-3.5 w-3.5" />
+          </span>
+        ) : <span className="w-1.5 shrink-0" />}
+        <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold">{widget.title}</h3>
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
             <span className="capitalize">{widget.chartType}</span>
@@ -44,20 +52,25 @@ export default function WidgetCard({ widget, reportRange, canEdit, isFirst, isLa
           </div>
         </div>
         {canEdit && (
-          <div className="flex shrink-0 items-center">
-            {action(Pencil, 'Edit widget', onEdit)}
-            {action(Copy, 'Duplicate widget', onDuplicate)}
-            {action(widget.width === 'full' ? Columns2 : RectangleHorizontal, widget.width === 'full' ? 'Make half width' : 'Make full width', onToggleWidth, { className: 'hidden h-7 w-7 lg:inline-flex' })}
-            {action(ArrowUp, 'Move up', () => onMove(-1), { disabled: isFirst })}
-            {action(ArrowDown, 'Move down', () => onMove(1), { disabled: isLast })}
-            {action(Trash2, 'Delete widget', onDelete, { className: 'h-7 w-7 text-destructive hover:text-destructive' })}
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0" title="Widget options"><MoreHorizontal /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={onEdit}><Pencil /> Edit</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onClone}><Copy /> Clone</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={onDelete} className="text-destructive focus:bg-destructive/10 focus:text-destructive"><Trash2 /> Delete widget</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
-      <div className="p-3">
-        {loading && !data ? <Loader className="h-[280px]" /> : error ? (
-          <div className="flex h-[280px] items-center justify-center rounded-md border border-dashed border-destructive/30 p-4 text-center text-xs text-destructive">{error}</div>
-        ) : <ReportChart chartType={widget.chartType} data={data} />}
+      <div className="relative min-h-0 flex-1 p-3">
+        {loading && !data ? <Loader className="h-full" /> : error ? (
+          <div className="flex h-full items-center justify-center rounded-md border border-dashed border-destructive/30 p-4 text-center text-xs text-destructive">{error}</div>
+        ) : <div className={`h-full transition-opacity ${loading ? 'opacity-40' : ''}`}><ReportChart chartType={widget.chartType} data={data} height="100%" /></div>}
+        {/* Refetching (e.g. the report date range changed): keep the old chart dimmed under a spinner. */}
+        {loading && data && <div className="absolute inset-0 flex items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
       </div>
     </Card>
   );

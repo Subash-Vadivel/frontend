@@ -3,17 +3,13 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { Loader } from '../ui/loader.jsx';
 
-const businessOnboardingPaths = new Set(['/businesses/select', '/businesses/new']);
-
 export default function ProtectedRoute() {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { selectedBusiness, loading: businessLoading } = useBusiness();
+  // Block only until the first list is loaded; later refreshes keep the current page mounted.
+  const { ready: businessesReady } = useBusiness();
   const location = useLocation();
 
-  if (authLoading || (isAuthenticated && businessLoading)) return <Loader fullScreen />;
+  if (authLoading || (isAuthenticated && !businessesReady)) return <Loader fullScreen />;
   if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
-  if (!selectedBusiness && !businessOnboardingPaths.has(location.pathname)) {
-    return <Navigate to="/businesses/select" replace />;
-  }
   return <Outlet />;
 }

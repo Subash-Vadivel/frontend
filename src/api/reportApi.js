@@ -38,8 +38,9 @@ export const deleteWidget = async (reportId, widgetId) => {
   await axiosClient.delete(`/reports/${reportId}/widgets/${widgetId}`);
 };
 
-export const reorderWidgets = async (reportId, ids) => {
-  const { data } = await axiosClient.post(`/reports/${reportId}/widgets/reorder`, { ids });
+// items: [{ id, x, y, w, h }] for every widget whose placement changed.
+export const saveReportLayout = async (reportId, items) => {
+  const { data } = await axiosClient.put(`/reports/${reportId}/layout`, { items });
   return data;
 };
 

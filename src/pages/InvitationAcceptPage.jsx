@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Loader } from '../components/ui/loader.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
+import { workspacePath } from '../lib/workspace.js';
 
 export default function InvitationAcceptPage() {
   const { token } = useParams();
@@ -42,7 +43,7 @@ export default function InvitationAcceptPage() {
       const response = await acceptInvitation(token);
       await refreshBusinesses();
       selectBusiness(response.business.id);
-      navigate('/dashboard', { replace: true });
+      navigate(workspacePath(response.business.id), { replace: true });
     } catch (err) { setError(err.response?.data?.detail || 'Unable to accept invitation'); }
     finally { setAccepting(false); }
   };

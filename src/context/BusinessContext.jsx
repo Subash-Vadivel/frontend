@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { BUSINESS_STORAGE_KEY, createBusiness as createBusinessRequest, listBusinesses } from '../api/businessApi';
+import { workspacePath } from '../lib/workspace.js';
 import { useAuth } from './AuthContext.jsx';
 
 const BusinessContext = createContext(null);
@@ -8,7 +9,12 @@ export function BusinessProvider({ children }) {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [businesses, setBusinesses] = useState([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState(() => localStorage.getItem(BUSINESS_STORAGE_KEY));
-  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  // Which login state the list was last loaded for. Until it matches, the list is stale (e.g. the
+  // render right after a reload or login), and "no businesses" must not be treated as real.
+  const [loadedFor, setLoadedFor] = useState(null);
+  const ready = loadedFor === isAuthenticated;
+  const loading = fetching || !ready;
   const [error, setError] = useState('');
 
   const refreshBusinesses = useCallback(async () => {
@@ -16,9 +22,10 @@ export function BusinessProvider({ children }) {
       setBusinesses([]);
       setSelectedBusinessId(null);
       localStorage.removeItem(BUSINESS_STORAGE_KEY);
+      setLoadedFor(false);
       return [];
     }
-    setLoading(true);
+    setFetching(true);
     setError('');
     try {
       const nextBusinesses = await listBusinesses();
@@ -42,7 +49,8 @@ export function BusinessProvider({ children }) {
       localStorage.removeItem(BUSINESS_STORAGE_KEY);
       return [];
     } finally {
-      setLoading(false);
+      setFetching(false);
+      setLoadedFor(true);
     }
   }, [isAuthenticated]);
 
@@ -73,6 +81,8 @@ export function BusinessProvider({ children }) {
     () => businesses.find((business) => business.id === selectedBusinessId) || null,
     [businesses, selectedBusinessId],
   );
+  // Builds links inside the current workspace: wsPath('/reports') -> /w/<id>/reports.
+  const wsPath = useCallback((path) => workspacePath(selectedBusinessId, path), [selectedBusinessId]);
   const role = selectedBusiness?.role || null;
   const canWriteFinance = ['owner', 'admin', 'manager'].includes(role);
   const canManageUsers = ['owner', 'admin'].includes(role);
@@ -93,11 +103,13 @@ export function BusinessProvider({ children }) {
     isOwner,
     isViewer,
     loading,
+    ready,
     error,
     refreshBusinesses,
     selectBusiness,
     createBusiness,
-  }), [businesses, selectedBusiness, selectedBusinessId, role, canWriteFinance, canManageUsers, canManageMcp, canManageSettings, isOwner, isViewer, loading, error, refreshBusinesses, selectBusiness, createBusiness]);
+    wsPath,
+  }), [businesses, selectedBusiness, selectedBusinessId, role, canWriteFinance, canManageUsers, canManageMcp, canManageSettings, isOwner, isViewer, loading, ready, error, refreshBusinesses, selectBusiness, createBusiness, wsPath]);
 
   return <BusinessContext.Provider value={value}>{children}</BusinessContext.Provider>;
 }
