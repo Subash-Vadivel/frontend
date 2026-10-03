@@ -1,6 +1,6 @@
 import { BarChart3, FolderTree, KeyRound, Plus, ReceiptText, Users, WalletCards } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import { listCategories } from '../api/categoryApi';
+import { listAllCategories } from '../api/categoryApi';
 import { listMcpApiKeys } from '../api/mcpApi';
 import { listTransactions } from '../api/transactionApi';
 import { formatCurrency } from '../utils/formatters';
@@ -16,6 +16,9 @@ const routeItems = [
   { id: 'action-add-expense', kind: 'Action', label: 'Add expense entry', description: 'Open the expense ledger and create a record', to: '/expenses?action=create', icon: Plus },
 ];
 
+// Only the most recent entries are indexed for quick search; the ledgers search the full history.
+const RECENT_ENTRY_LIMIT = 100;
+
 const normalize = (value) => String(value || '').toLowerCase();
 
 export function useGlobalSearch() {
@@ -29,11 +32,11 @@ export function useGlobalSearch() {
     setLoading(true);
     setError('');
     try {
-      const [income, expenses, incomeCategories, expenseCategories, apiKeys] = await Promise.all([
-        listTransactions('income', {}),
-        listTransactions('expense', {}),
-        listCategories('income'),
-        listCategories('expense'),
+      const [{ items: income }, { items: expenses }, incomeCategories, expenseCategories, apiKeys] = await Promise.all([
+        listTransactions('income', {}, { limit: RECENT_ENTRY_LIMIT }),
+        listTransactions('expense', {}, { limit: RECENT_ENTRY_LIMIT }),
+        listAllCategories('income'),
+        listAllCategories('expense'),
         listMcpApiKeys().catch(() => []),
       ]);
       const transactionItems = [

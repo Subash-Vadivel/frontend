@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { createCategory, listCategories } from '../api/categoryApi';
+import { createCategory, listAllCategories } from '../api/categoryApi';
 
 export function useCategories(type) {
   const [categories, setCategories] = useState([]);
@@ -10,7 +10,7 @@ export function useCategories(type) {
     setLoading(true);
     setError('');
     try {
-      setCategories(await listCategories(type));
+      setCategories(await listAllCategories(type));
     } catch (err) {
       setError(err.response?.data?.detail || 'Unable to load categories');
     } finally {

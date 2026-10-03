@@ -14,6 +14,8 @@ import { listTransactions } from '../api/transactionApi';
 import { rangeForMode } from '../utils/dateRanges';
 import { formatCurrency, formatMonthYear } from '../utils/formatters';
 
+const RECENT_LIMIT = 6;
+
 export default function DashboardPage() {
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, netBalance: 0 });
   const [monthly, setMonthly] = useState([]);
@@ -24,7 +26,7 @@ export default function DashboardPage() {
   const [rangeMode, setRangeMode] = useState('all');
   const [dateRange, setDateRange] = useState({});
   const [customModalOpen, setCustomModalOpen] = useState(false);
-  useEffect(() => { const load = async () => { setLoading(true); const [summaryData, monthlyData, incomeData, expenseData, incomeRows, expenseRows] = await Promise.all([getSummary(dateRange), getMonthlyTotals(dateRange), getCategoryTotals('income', dateRange), getCategoryTotals('expense', dateRange), listTransactions('income', dateRange), listTransactions('expense', dateRange)]); setSummary(summaryData); setMonthly(monthlyData); setIncomeCategories(incomeData); setExpenseCategories(expenseData); setRecentEntries([...incomeRows.map((row)=>({...row,type:'income'})), ...expenseRows.map((row)=>({...row,type:'expense'}))].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,6)); setLoading(false); }; load(); }, [dateRange]);
+  useEffect(() => { const load = async () => { setLoading(true); const [summaryData, monthlyData, incomeData, expenseData, incomeRows, expenseRows] = await Promise.all([getSummary(dateRange), getMonthlyTotals(dateRange), getCategoryTotals('income', dateRange), getCategoryTotals('expense', dateRange), listTransactions('income', dateRange, { limit: RECENT_LIMIT }), listTransactions('expense', dateRange, { limit: RECENT_LIMIT })]); setSummary(summaryData); setMonthly(monthlyData); setIncomeCategories(incomeData); setExpenseCategories(expenseData); setRecentEntries([...incomeRows.items.map((row)=>({...row,type:'income'})), ...expenseRows.items.map((row)=>({...row,type:'expense'}))].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,RECENT_LIMIT)); setLoading(false); }; load(); }, [dateRange]);
   const changeRange = (value) => { if (value === 'custom') { setCustomModalOpen(true); return; } setRangeMode(value); setDateRange(rangeForMode(value)); };
   const applyCustomRange = (range) => { setRangeMode('custom'); setDateRange(range); setCustomModalOpen(false); };
   const insights = useMemo(() => {

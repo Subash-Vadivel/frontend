@@ -2,15 +2,26 @@ import axiosClient from './axiosClient';
 
 const pathForType = (type) => (type === 'income' ? '/income' : '/expenses');
 
-const rangeParams = (range = {}) => {
+const listParams = (range = {}, { limit, offset, search, sort, order } = {}) => {
   const params = {};
   if (range.startDate) params.startDate = range.startDate;
   if (range.endDate) params.endDate = range.endDate;
+  if (limit) params.limit = limit;
+  if (offset) params.offset = offset;
+  if (search?.trim()) params.search = search.trim();
+  if (sort) params.sort = sort;
+  if (order) params.order = order;
   return params;
 };
 
-export const listTransactions = async (type, range) => {
-  const { data } = await axiosClient.get(pathForType(type), { params: rangeParams(range) });
+// Returns a page: { items, total, limit, offset, hasMore, nextOffset, summary }.
+export const listTransactions = async (type, range, options) => {
+  const { data } = await axiosClient.get(pathForType(type), { params: listParams(range, options) });
+  return data;
+};
+
+export const getTransaction = async (type, id) => {
+  const { data } = await axiosClient.get(`${pathForType(type)}/${id}`);
   return data;
 };
 

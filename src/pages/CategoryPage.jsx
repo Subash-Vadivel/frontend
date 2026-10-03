@@ -1,6 +1,6 @@
 import { FolderTree, ListChecks, Plus, ReceiptText, Search, WalletCards } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { createCategory, listCategories } from '../api/categoryApi';
+import { createCategory, listAllCategories } from '../api/categoryApi';
 import DataPanel from '../components/layout/DataPanel.jsx';
 import MetricCard from '../components/layout/MetricCard.jsx';
 import PageShell from '../components/layout/PageShell.jsx';
@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs.jsx';
 export default function CategoryPage() {
   const { canWriteFinance } = useBusiness();
   const [incomeCategories, setIncomeCategories] = useState([]); const [expenseCategories, setExpenseCategories] = useState([]); const [createModalOpen, setCreateModalOpen] = useState(false); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [typeView, setTypeView] = useState('all'); const [query, setQuery] = useState('');
-  const loadCategories = useCallback(async () => { setLoading(true); setError(''); try { const [income, expense] = await Promise.all([listCategories('income'), listCategories('expense')]); setIncomeCategories(income); setExpenseCategories(expense); } catch (err) { setError(err.response?.data?.detail || 'Unable to load categories'); } finally { setLoading(false); } }, []);
+  const loadCategories = useCallback(async () => { setLoading(true); setError(''); try { const [income, expense] = await Promise.all([listAllCategories('income'), listAllCategories('expense')]); setIncomeCategories(income); setExpenseCategories(expense); } catch (err) { setError(err.response?.data?.detail || 'Unable to load categories'); } finally { setLoading(false); } }, []);
   useEffect(() => { loadCategories(); }, [loadCategories]);
   const categories = useMemo(() => [...incomeCategories, ...expenseCategories].sort((a, b) => { const typeSort = a.type.localeCompare(b.type); return typeSort || a.name.localeCompare(b.name); }), [expenseCategories, incomeCategories]);
   const filtered = useMemo(() => categories.filter((category) => (typeView === 'all' || category.type === typeView) && (!query.trim() || `${category.name} ${category.type}`.toLowerCase().includes(query.toLowerCase()))), [categories, query, typeView]);
