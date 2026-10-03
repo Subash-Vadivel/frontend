@@ -1,4 +1,5 @@
 import { AlertTriangle, Check, Copy, KeyRound } from 'lucide-react';
+import { copyToClipboard } from '../../lib/clipboard.js';
 import { useState } from 'react';
 import { Button } from '../ui/button.jsx';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog.jsx';
@@ -20,7 +21,7 @@ export default function CreateApiKeyModal({ endpoint, onClose, onSubmit }) {
   };
   const copyKey = async () => {
     if (!createdKey?.apiKey) return;
-    await navigator.clipboard.writeText(createdKey.apiKey);
+    if (!(await copyToClipboard(createdKey.apiKey, 'API key copied'))) return;
     setCopied(true); setTimeout(() => setCopied(false), 1500);
   };
 
@@ -35,7 +36,7 @@ export default function CreateApiKeyModal({ endpoint, onClose, onSubmit }) {
           <div className="grid gap-4">
             <div className="flex gap-2 rounded-md border border-amber-500/20 bg-amber-500/10 p-2.5 text-xs text-amber-700 dark:text-amber-300">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>Copy this key now. For security it won't be shown again.</span>
+              <span>Copy this key into your MCP client. You can copy it again later from the API keys list; treat it like a password.</span>
             </div>
             <div className="grid gap-1.5">
               <Label>{createdKey.name}</Label>

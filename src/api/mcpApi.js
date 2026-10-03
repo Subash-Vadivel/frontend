@@ -18,3 +18,8 @@ export const updateMcpApiKey = async (id, payload) => {
 export const deleteMcpApiKey = async (id) => {
   await axiosClient.delete(`/mcp/api-keys/${id}`);
 };
+
+export const revealMcpApiKey = async (id) => {
+  const { data } = await axiosClient.get(`/mcp/api-keys/${id}/reveal`);
+  return data.apiKey;
+};

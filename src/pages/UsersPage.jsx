@@ -13,6 +13,7 @@ import { Loader } from '../components/ui/loader.jsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table.jsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
+import { copyToClipboard } from '../lib/clipboard.js';
 
 const formatDate = (value) => new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium' }).format(new Date(value));
 const matches = (query, ...values) => !query.trim() || values.join(' ').toLowerCase().includes(query.trim().toLowerCase());
@@ -50,7 +51,7 @@ export default function UsersPage() {
     load();
     return invite;
   };
-  const copyInvite = async (url) => { if (url) await navigator.clipboard.writeText(url); };
+  const copyInvite = (url) => { if (url) copyToClipboard(url, 'Invite link copied'); };
   const filteredMembers = useMemo(() => members.filter((member) => matches(query, member.name, member.email, member.role)), [members, query]);
   const filteredInvitations = useMemo(() => invitations.filter((invite) => matches(query, invite.email, invite.role, invite.status)), [invitations, query]);
   const pendingInvites = invitations.filter((invite) => invite.status === 'pending').length;

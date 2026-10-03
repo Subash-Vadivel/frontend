@@ -4,6 +4,7 @@ import { Button } from '../ui/button.jsx';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog.jsx';
 import { Input } from '../ui/input.jsx';
 import { Label } from '../ui/label.jsx';
+import { copyToClipboard } from '../../lib/clipboard.js';
 import { getErrorMessage } from '../../lib/utils.js';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.jsx';
 
@@ -29,7 +30,7 @@ export default function InviteUserModal({ businessName, onClose, onSubmit }) {
   };
   const copyLink = async () => {
     if (!invite?.inviteUrl) return;
-    await navigator.clipboard.writeText(invite.inviteUrl);
+    if (!(await copyToClipboard(invite.inviteUrl, 'Invite link copied'))) return;
     setCopied(true); setTimeout(() => setCopied(false), 1500);
   };
   const inviteAnother = () => { setInvite(null); setEmail(''); setRole('viewer'); setCopied(false); };

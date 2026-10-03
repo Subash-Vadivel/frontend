@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { BusinessProvider } from './context/BusinessContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
+import { Toaster } from './components/ui/sonner.jsx';
 import App from './App.jsx';
 import '@fontsource/geist-sans/400.css';
 import '@fontsource/geist-sans/500.css';
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           </BusinessProvider>
         </AuthProvider>
       </BrowserRouter>
+      <Toaster />
     </ThemeProvider>
   </React.StrictMode>,
 );
