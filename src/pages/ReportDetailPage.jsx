@@ -1,4 +1,4 @@
-import { ArrowLeft, ChartNoAxesCombined, Pencil, Plus } from 'lucide-react';
+import { ArrowLeft, ChartNoAxesCombined, Loader2, Pencil, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -46,6 +46,7 @@ export default function ReportDetailPage() {
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [cloning, setCloning] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
@@ -91,11 +92,13 @@ export default function ReportDetailPage() {
     catch (err) { setReport(previous); toast.error(getErrorMessage(err, 'Could not save the layout')); }
   };
   const clone = async (widget) => {
+    setCloning(true);
     try {
       const created = await createWidget(reportId, { title: `${widget.title} (copy)`.slice(0, 120), chartType: widget.chartType, config: widget.config });
       setReport((current) => ({ ...current, widgets: [...current.widgets, created] }));
       toast.success('Widget cloned');
     } catch (err) { toast.error(getErrorMessage(err, 'Unable to clone widget')); }
+    finally { setCloning(false); }
   };
   const removeWidget = async () => {
     setDeleting(true);
@@ -156,6 +159,12 @@ export default function ReportDetailPage() {
       {builderTarget && <WidgetBuilderModal widget={builderTarget === 'new' ? null : builderTarget} categories={categories} categoriesLoading={categoriesLoading} reportRange={reportRange} onClose={() => setBuilderTarget(null)} onSave={saveWidget} />}
       {renameOpen && <ReportFormModal report={report} onClose={() => setRenameOpen(false)} onSubmit={rename} />}
       {deleteTarget && <ConfirmDialog title="Delete widget?" message={`"${deleteTarget.title}" will be removed from this report.`} confirmLabel="Delete widget" loading={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={removeWidget} />}
+      {/* Blocks the page until the clone is saved, so the layout can't change underneath it. */}
+      {cloning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-[1px]" role="status" aria-live="polite">
+          <div className="flex items-center gap-2 rounded-lg border bg-background px-4 py-3 text-sm shadow-lg"><Loader2 className="h-4 w-4 animate-spin text-primary" /> Cloning widget...</div>
+        </div>
+      )}
     </PageShell>
   );
 }

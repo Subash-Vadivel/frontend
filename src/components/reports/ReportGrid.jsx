@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Responsive, useContainerWidth } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
+import { sizeLimits } from './reportUtils.js';
 import { DRAG_HANDLE_CLASS } from './WidgetCard.jsx';
 
 // 12 columns on wide screens; narrow screens stack widgets in one column and never save.
@@ -8,8 +9,6 @@ const BREAKPOINTS = { lg: 768, sm: 0 };
 const COLS = { lg: 12, sm: 1 };
 const ROW_HEIGHT = 40;
 const MARGIN = [12, 12];
-// minH 4 matches the backend minimum (WidgetLayout.h >= 4): about 195px, header plus a compact chart.
-const MIN_SIZE = { minW: 3, minH: 4 };
 const sameLayout = (a, b) => a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
 
 // Mounted only once there are widgets: useContainerWidth measures its container on mount.
@@ -17,7 +16,8 @@ export default function ReportGrid({ widgets, canEdit, onLayoutSave, renderWidge
   const { width, containerRef, mounted } = useContainerWidth();
   // Arranging happens on the 12-column grid only; the stacked phone view is read-only.
   const canArrange = canEdit && width >= BREAKPOINTS.lg;
-  const layouts = useMemo(() => ({ lg: widgets.map((w) => ({ i: w.id, ...w.layout, ...MIN_SIZE })) }), [widgets]);
+  // Each widget can only be resized within its chart type's limits (WIDGET_SIZES).
+  const layouts = useMemo(() => ({ lg: widgets.map((w) => ({ i: w.id, ...w.layout, ...sizeLimits(w.chartType) })) }), [widgets]);
 
   // Drag/resize stop hands over the final layout, including widgets the grid pushed aside.
   const handleStop = (layout) => {

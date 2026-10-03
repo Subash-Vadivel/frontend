@@ -4,8 +4,11 @@ export const CHART_TYPES = [
   { value: 'bar', label: 'Bar' },
   { value: 'pie', label: 'Pie' },
   { value: 'donut', label: 'Donut' },
+  { value: 'kpi', label: 'KPI' },
 ];
 export const PIE_TYPES = new Set(['pie', 'donut']);
+// No date axis: one total per series over the range.
+export const TOTAL_ONLY_TYPES = new Set(['pie', 'donut', 'kpi']);
 export const INTERVALS = [
   { value: 'day', label: 'Daily' },
   { value: 'week', label: 'Weekly' },
@@ -29,6 +32,22 @@ export const aggregationsFor = (field) => {
   return AGGREGATIONS.filter((a) => allowed.includes(a.value));
 };
 export const MAX_SERIES = 8;
+
+// Grid sizes per chart type in columns (of 12) and rows: create/clone use "default", resizing is
+// limited to min..max. Keep in sync with WIDGET_SIZES in backend app/schemas/report.py.
+const CHART_SIZE = { min: [2, 3], default: [2, 3], max: [12, 20] };
+export const WIDGET_SIZES = {
+  line: CHART_SIZE,
+  area: CHART_SIZE,
+  bar: CHART_SIZE,
+  pie: CHART_SIZE,
+  donut: CHART_SIZE,
+  kpi: { min: [2, 2], default: [2, 2], max: [4, 4] },
+};
+export const sizeLimits = (chartType) => {
+  const { min, max } = WIDGET_SIZES[chartType] || CHART_SIZE;
+  return { minW: min[0], minH: min[1], maxW: max[0], maxH: max[1] };
+};
 
 export const newSeriesId = () => (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`).slice(0, 36);
 

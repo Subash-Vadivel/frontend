@@ -1,4 +1,4 @@
-import { BarChart3, ChartArea, ChartLine, ChartPie, CircleDot, Plus, Save, Trash2 } from 'lucide-react';
+import { BarChart3, ChartArea, ChartLine, ChartPie, CircleDot, Gauge, Plus, Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { queryWidget } from '../../api/reportApi';
 import { cn, getErrorMessage } from '../../lib/utils.js';
@@ -9,9 +9,9 @@ import { Label } from '../ui/label.jsx';
 import { Loader } from '../ui/loader.jsx';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../ui/select.jsx';
 import ReportChart from './ReportChart.jsx';
-import { CHART_TYPES, INTERVALS, MAX_SERIES, PIE_TYPES, aggregationsFor, effectiveRange, newSeriesId } from './reportUtils.js';
+import { CHART_TYPES, INTERVALS, MAX_SERIES, TOTAL_ONLY_TYPES, aggregationsFor, effectiveRange, newSeriesId } from './reportUtils.js';
 
-const CHART_ICONS = { line: ChartLine, area: ChartArea, bar: BarChart3, pie: ChartPie, donut: CircleDot };
+const CHART_ICONS = { line: ChartLine, area: ChartArea, bar: BarChart3, pie: ChartPie, donut: CircleDot, kpi: Gauge };
 const PREVIEW_DELAY_MS = 400;
 
 const metricValue = (metric) => (metric?.kind === 'field' ? `field:${metric.fieldId}` : 'amount');
@@ -92,8 +92,11 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
   const [error, setError] = useState('');
   const requestId = useRef(0);
 
-  const isPie = PIE_TYPES.has(chartType);
-  const readySeries = series.filter((s) => s.categoryId);
+  const isTotalOnly = TOTAL_ONLY_TYPES.has(chartType);
+  const isKpi = chartType === 'kpi';
+  // A KPI shows one series; extra rows are kept (not deleted) in case the type is switched back.
+  const visibleSeries = isKpi ? series.slice(0, 1) : series;
+  const readySeries = visibleSeries.filter((s) => s.categoryId);
   const rangeIssue = rangeMode === 'custom' && (!customRange.startDate || !customRange.endDate || customRange.startDate > customRange.endDate)
     ? 'Pick a valid start and end date for the custom range.' : '';
   const config = useMemo(() => ({
@@ -146,7 +149,7 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
             <div className="grid gap-1.5"><Label htmlFor="widget-title">Title</Label><Input id="widget-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Drumstick rate per week" maxLength={120} /></div>
             <div className="grid gap-1.5">
               <Label>Chart type</Label>
-              <div className="grid grid-cols-5 gap-1.5">
+              <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
                 {CHART_TYPES.map(({ value, label }) => {
                   const Icon = CHART_ICONS[value];
                   return (
@@ -157,8 +160,10 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
                 })}
               </div>
             </div>
-            {isPie ? (
-              <p className="rounded-md border bg-muted/20 p-2 text-xs text-muted-foreground">Pie and donut charts show each series' total for the date range, one slice per series.</p>
+            {isTotalOnly ? (
+              <p className="rounded-md border bg-muted/20 p-2 text-xs text-muted-foreground">{isKpi
+                ? 'A KPI shows one value for the date range, with the % change from the previous period of the same length.'
+                : "Pie and donut charts show each series' total for the date range, one slice per series."}</p>
             ) : (
               <div className="grid gap-1.5">
                 <Label>X axis</Label>
@@ -179,13 +184,13 @@ export default function WidgetBuilderModal({ widget, categories, categoriesLoadi
               )}
             </div>
             <div className="grid gap-1.5">
-              <Label>{isPie ? 'Slices' : 'Y axis series'}</Label>
+              <Label>{isKpi ? 'Value' : chartType === 'pie' || chartType === 'donut' ? 'Slices' : 'Y axis series'}</Label>
               {categoriesLoading ? <Loader className="min-h-20" /> : !categories.length ? (
                 <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">Create a category first to chart its entries.</p>
               ) : (
                 <div className="grid gap-2">
-                  {series.map((s, index) => <SeriesRow key={s.id} series={s} index={index} categories={categories} canRemove={series.length > 1} onChange={(next) => updateSeries(index, next)} onRemove={() => setSeries((all) => all.filter((_, i) => i !== index))} />)}
-                  {series.length < MAX_SERIES && <Button type="button" variant="outline" size="sm" onClick={() => setSeries((all) => [...all, blankSeries()])}><Plus /> Add series</Button>}
+                  {visibleSeries.map((s, index) => <SeriesRow key={s.id} series={s} index={index} categories={categories} canRemove={visibleSeries.length > 1} onChange={(next) => updateSeries(index, next)} onRemove={() => setSeries((all) => all.filter((_, i) => i !== index))} />)}
+                  {!isKpi && series.length < MAX_SERIES && <Button type="button" variant="outline" size="sm" onClick={() => setSeries((all) => [...all, blankSeries()])}><Plus /> Add series</Button>}
                 </div>
               )}
             </div>

@@ -1,4 +1,4 @@
-import { ChartNoAxesCombined, LayoutGrid, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ChartNoAxesCombined, LayoutGrid, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createReport, deleteReport, listReports, updateReport } from '../api/reportApi';
@@ -7,6 +7,7 @@ import ConfirmDialog from '../components/modals/ConfirmDialog.jsx';
 import ReportFormModal from '../components/reports/ReportFormModal.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Card } from '../components/ui/card.jsx';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../components/ui/dropdown-menu.jsx';
 import { Loader } from '../components/ui/loader.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
 import { getErrorMessage } from '../lib/utils.js';
@@ -57,9 +58,18 @@ export default function ReportsPage() {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border"><ChartNoAxesCombined className="h-4 w-4 text-primary" /></span><h3 className="truncate text-sm font-semibold">{report.name}</h3></div>
                 {canWriteFinance && (
-                  <div className="flex shrink-0" onClick={(event) => event.stopPropagation()}>
-                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" title="Rename" onClick={() => setFormTarget(report)}><Pencil /></Button>
-                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete" onClick={() => setDeleteTarget(report)}><Trash2 /></Button>
+                  // stopPropagation: menu clicks (even from the portaled content) must not open the report.
+                  <div className="shrink-0" onClick={(event) => event.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7" title="Report options"><MoreHorizontal /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onSelect={() => setFormTarget(report)}><Pencil /> Edit</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => setDeleteTarget(report)} className="text-destructive focus:bg-destructive/10 focus:text-destructive"><Trash2 /> Delete report</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
               </div>

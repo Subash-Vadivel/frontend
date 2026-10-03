@@ -1,4 +1,4 @@
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMemo } from 'react';
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
@@ -16,7 +16,31 @@ function EmptyChart({ height, message }) {
   );
 }
 
-export default function ReportChart({ chartType, data, height = 280 }) {
+// Change vs the previous period: null when there's nothing to compare (all time, or no prior data).
+const changeFrom = (current, previous) => {
+  if (previous === null || previous === undefined || current === null || current === undefined) return null;
+  if (previous === 0) return current === 0 ? 0 : null;
+  return ((current - previous) / Math.abs(previous)) * 100;
+};
+
+function KpiValue({ series, height }) {
+  if (!series) return <EmptyChart height={height} message="No data yet" />;
+  const change = changeFrom(series.total, series.previousTotal);
+  const ChangeIcon = change > 0 ? TrendingUp : TrendingDown;
+  return (
+    <div className="flex flex-col items-center justify-center gap-0.5 overflow-hidden text-center" style={{ height }} title={series.label}>
+      <div className="max-w-full truncate text-xl font-semibold tabular-nums tracking-tight">{formatValue(series.total, series.unit)}</div>
+      {change !== null && (
+        <div className={`flex items-center gap-1 text-[11px] font-medium ${change > 0 ? 'text-emerald-600 dark:text-emerald-400' : change < 0 ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
+          {change !== 0 && <ChangeIcon className="h-3.5 w-3.5" />}
+          {change > 0 ? '+' : ''}{change.toFixed(1)}% <span className="font-normal text-muted-foreground" title="vs the previous period of the same length">vs prev</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ReportChart({ chartType, data, height = 280, compact = false }) {
   const theme = useChartTheme();
   const colors = theme.palette.filter(Boolean);
   const colorFor = (index) => colors[index % colors.length] || theme.income;
@@ -34,6 +58,8 @@ export default function ReportChart({ chartType, data, height = 280 }) {
 
   if (!data) return <EmptyChart height={height} message="No data yet" />;
 
+  if (chartType === 'kpi') return <KpiValue series={series[0]} height={height} />;
+
   if (PIE_TYPES.has(chartType)) {
     const slices = series.map((s, index) => ({ id: s.id, name: s.label, value: s.total || 0, unit: s.unit, color: colorFor(index) })).filter((s) => s.value > 0);
     if (!slices.length) return <EmptyChart height={height} message="No data in this range" />;
@@ -44,7 +70,7 @@ export default function ReportChart({ chartType, data, height = 280 }) {
             {slices.map((slice) => <Cell key={slice.id} fill={slice.color} />)}
           </Pie>
           <Tooltip contentStyle={tooltipStyle} formatter={(value, name, item) => [formatValue(value, item.payload.unit), name]} />
-          <Legend wrapperStyle={{ color: theme.axis, fontSize: 12 }} />
+          {!compact && <Legend wrapperStyle={{ color: theme.axis, fontSize: 12 }} />}
         </PieChart>
       </ResponsiveContainer>
     );
@@ -74,7 +100,7 @@ export default function ReportChart({ chartType, data, height = 280 }) {
         <YAxis yAxisId="left" tick={{ fill: theme.axis, fontSize: 11 }} tickFormatter={(value) => formatAxis(value, leftUnit)} tickLine={false} axisLine={false} width={64} />
         {rightUnit && <YAxis yAxisId="right" orientation="right" tick={{ fill: theme.axis, fontSize: 11 }} tickFormatter={(value) => formatAxis(value, rightUnit)} tickLine={false} axisLine={false} width={52} />}
         <Tooltip contentStyle={tooltipStyle} cursor={{ fill: theme.grid }} formatter={(value, name, item) => [formatValue(value, unitById[item.dataKey]), name]} />
-        <Legend wrapperStyle={{ color: theme.axis, fontSize: 12, paddingTop: 6 }} />
+        {!compact && <Legend wrapperStyle={{ color: theme.axis, fontSize: 12, paddingTop: 6 }} />}
         {marks}
       </Chart>
     </ResponsiveContainer>
