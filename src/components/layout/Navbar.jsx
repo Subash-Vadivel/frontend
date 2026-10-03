@@ -1,4 +1,4 @@
-import { BarChart3, ChartNoAxesCombined, ChevronsLeftRight, FolderTree, KeyRound, LogOut, ReceiptText, Settings, Users, WalletCards, X } from 'lucide-react';
+import { BarChart3, ChartNoAxesCombined, ChevronsLeftRight, FolderTree, LogOut, ReceiptText, Settings, Users, WalletCards, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -12,7 +12,7 @@ import { APP_NAME, BrandIcon } from '../../lib/brand.js';
 
 export default function Navbar({ mobileOpen = false, onMobileOpenChange = () => {} }) {
   const { user, logout } = useAuth();
-  const { selectedBusiness, canManageUsers, canManageMcp, canManageSettings, wsPath } = useBusiness();
+  const { selectedBusiness, canManageUsers, canManageSettings, wsPath } = useBusiness();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
@@ -21,11 +21,10 @@ export default function Navbar({ mobileOpen = false, onMobileOpenChange = () => 
     { label: 'Ledgers', links: [{ to: '/income', label: 'Income', icon: WalletCards }, { to: '/expenses', label: 'Expenses', icon: ReceiptText }] },
     { label: 'System', links: [
       { to: '/categories', label: 'Categories', icon: FolderTree },
-      ...(canManageMcp ? [{ to: '/mcp', label: 'MCP', icon: KeyRound }] : []),
       ...(canManageUsers ? [{ to: '/users', label: 'Users', icon: Users }] : []),
       ...(canManageSettings ? [{ to: '/settings', label: 'Settings', icon: Settings }] : []),
     ] },
-  ], [canManageMcp, canManageUsers, canManageSettings]);
+  ], [canManageUsers, canManageSettings]);
   const handleLogout = () => { logout(); navigate('/login'); };
   const content = (
     <aside className={cn('flex h-full flex-col bg-background p-2 transition-all lg:sticky lg:top-0 lg:h-screen lg:border-r', collapsed ? 'lg:w-[68px]' : 'lg:w-[248px]')}>

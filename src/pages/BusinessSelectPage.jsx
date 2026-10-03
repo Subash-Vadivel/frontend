@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Plus } from 'lucide-react';
+import { ArrowRight, Check, KeyRound, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/theme/ThemeToggle.jsx';
 import { Badge } from '../components/ui/badge.jsx';
@@ -36,7 +36,10 @@ export default function BusinessSelectPage() {
     <main className="min-h-screen bg-muted/20 px-4 py-6 text-foreground">
       <div className="mx-auto flex w-full max-w-4xl items-center justify-between">
         <div className="flex items-center gap-2 text-[13px] font-semibold"><span className="flex h-8 w-8 items-center justify-center rounded-md border bg-background"><BrandIcon className="h-4 w-4 text-primary" /></span>{APP_NAME}</div>
-        <ThemeToggle compact />
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="ghost" size="sm" onClick={() => navigate('/account/mcp')}><KeyRound /> MCP API keys</Button>
+          <ThemeToggle compact />
+        </div>
       </div>
       <section className="mx-auto mt-14 w-full max-w-4xl">
         <div className="mb-6">

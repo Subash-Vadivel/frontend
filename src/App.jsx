@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 import LegacyWorkspaceRedirect from './components/auth/LegacyWorkspaceRedirect.jsx';
+import AccountLayout from './components/layout/AccountLayout.jsx';
 import WorkspaceRoute from './components/auth/WorkspaceRoute.jsx';
 import BusinessCreatePage from './pages/BusinessCreatePage.jsx';
 import BusinessSelectPage from './pages/BusinessSelectPage.jsx';
@@ -18,7 +19,7 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 
-const LEGACY_WORKSPACE_PATHS = ['/dashboard', '/reports', '/reports/:reportId', '/income', '/expenses', '/categories', '/mcp', '/users', '/settings'];
+const LEGACY_WORKSPACE_PATHS = ['/dashboard', '/reports', '/reports/:reportId', '/income', '/expenses', '/categories', '/users', '/settings'];
 
 export default function App() {
   return (
@@ -40,10 +41,14 @@ export default function App() {
           <Route path="income" element={<IncomePage />} />
           <Route path="expenses" element={<ExpensePage />} />
           <Route path="categories" element={<CategoryPage />} />
-          <Route path="mcp" element={<McpPage />} />
+          <Route path="mcp" element={<Navigate to="/account/mcp" replace />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
+        <Route path="/account" element={<AccountLayout />}>
+          <Route path="mcp" element={<McpPage />} />
+        </Route>
+        <Route path="/mcp" element={<Navigate to="/account/mcp" replace />} />
         {LEGACY_WORKSPACE_PATHS.map((path) => <Route key={path} path={path} element={<LegacyWorkspaceRedirect />} />)}
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

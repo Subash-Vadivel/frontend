@@ -19,7 +19,7 @@ export default function CommandPalette({ open, onOpenChange }) {
   const results = useMemo(() => search(query), [query, search]);
   const go = (to) => {
     onOpenChange(false);
-    navigate(wsPath(to));
+    navigate(to.startsWith('/account/') ? to : wsPath(to));
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

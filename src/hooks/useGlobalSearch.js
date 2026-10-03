@@ -10,7 +10,7 @@ const routeItems = [
   { id: 'route-income', kind: 'Page', label: 'Income', description: 'Review and add revenue entries', to: '/income', icon: WalletCards },
   { id: 'route-expenses', kind: 'Page', label: 'Expenses', description: 'Review and add operating costs', to: '/expenses', icon: ReceiptText },
   { id: 'route-categories', kind: 'Page', label: 'Categories', description: 'Configure taxonomy and custom fields', to: '/categories', icon: FolderTree },
-  { id: 'route-mcp', kind: 'Page', label: 'MCP', description: 'Developer endpoint and API keys', to: '/mcp', icon: KeyRound },
+  { id: 'route-mcp', kind: 'Page', label: 'MCP API keys', description: 'Connect AI assistants (account-wide)', to: '/account/mcp', icon: KeyRound },
   { id: 'route-users', kind: 'Page', label: 'Users', description: 'Business members and invitations', to: '/users', icon: Users },
   { id: 'action-add-income', kind: 'Action', label: 'Add income entry', description: 'Open the income ledger and create a record', to: '/income?action=create', icon: Plus },
   { id: 'action-add-expense', kind: 'Action', label: 'Add expense entry', description: 'Open the expense ledger and create a record', to: '/expenses?action=create', icon: Plus },
@@ -73,7 +73,7 @@ export function useGlobalSearch() {
         kind: 'MCP key',
         label: apiKey.name,
         description: `${apiKey.enabled ? 'Enabled' : 'Disabled'} · ${apiKey.keyPrefix || 'key'}...`,
-        to: '/mcp',
+        to: '/account/mcp',
         icon: KeyRound,
         searchText: `${apiKey.name} ${apiKey.keyPrefix} ${apiKey.enabled ? 'enabled' : 'disabled'}`,
       }));

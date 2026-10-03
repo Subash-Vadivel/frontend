@@ -1,4 +1,4 @@
-import { Building2, Menu, Plus, Search } from 'lucide-react';
+import { Building2, KeyRound, LogOut, Menu, Plus, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -6,6 +6,7 @@ import { useBusiness } from '../../context/BusinessContext.jsx';
 import CommandPalette from '../command/CommandPalette.jsx';
 import ThemeToggle from '../theme/ThemeToggle.jsx';
 import { Avatar, AvatarFallback } from '../ui/avatar.jsx';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu.jsx';
 import { Button } from '../ui/button.jsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.jsx';
 import { APP_NAME } from '../../lib/brand.js';
@@ -23,7 +24,7 @@ const pageNames = {
 };
 
 export default function AppTopbar({ onMenuClick }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { businesses, selectedBusiness, selectedBusinessId, canWriteFinance, wsPath } = useBusiness();
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,7 +60,17 @@ export default function AppTopbar({ onMenuClick }) {
           {canWriteFinance && <Button type="button" variant="outline" size="sm" onClick={() => navigate(wsPath('/income?action=create'))}><Plus /> Income</Button>}
           {canWriteFinance && <Button className="hidden sm:inline-flex" type="button" variant="outline" size="sm" onClick={() => navigate(wsPath('/expenses?action=create'))}><Plus /> Expense</Button>}
           <ThemeToggle compact />
-          <Avatar className="h-8 w-8"><AvatarFallback>{initial}</AvatarFallback></Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Account menu"><Avatar className="h-8 w-8"><AvatarFallback>{initial}</AvatarFallback></Avatar></button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="min-w-[12rem]">
+              <div className="px-2 py-1.5"><p className="truncate text-[13px] font-medium">{user?.name}</p><p className="truncate text-[11px] text-muted-foreground">{user?.email}</p></div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => navigate('/account/mcp')}><KeyRound /> MCP API keys</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => { logout(); navigate('/login'); }}><LogOut /> Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
