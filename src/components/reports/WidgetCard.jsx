@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { queryWidget } from '../../api/reportApi';
 import { getErrorMessage } from '../../lib/utils.js';
 import { Badge } from '../ui/badge.jsx';
+import { ExpandButton } from '../ui/expand-button.jsx';
+import { FullscreenDialog } from '../ui/fullscreen-dialog.jsx';
 import { Button } from '../ui/button.jsx';
 import { Card } from '../ui/card.jsx';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu.jsx';
@@ -34,6 +36,7 @@ export default function WidgetCard({ widget, reportRange, canEdit, canDrag, onEd
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryKey]);
 
+  const [expanded, setExpanded] = useState(false);
   const ownRange = widget.config.dateRange?.mode === 'custom';
   const isKpi = widget.chartType === 'kpi';
   const intervalLabel = INTERVALS.find((i) => i.value === widget.config.interval)?.label;
@@ -58,6 +61,8 @@ export default function WidgetCard({ widget, reportRange, canEdit, canDrag, onEd
             </div>
           )}
         </div>
+        {/* Full screen is for everyone, including viewers; it reuses the data already loaded. */}
+        <ExpandButton onClick={() => setExpanded(true)} className={`shrink-0 ${isKpi ? 'h-6 w-6' : 'h-7 w-7'}`} />
         {canEdit && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -79,6 +84,16 @@ export default function WidgetCard({ widget, reportRange, canEdit, canDrag, onEd
         {/* Refetching (e.g. the report date range changed): keep the old chart dimmed under a spinner. */}
         {loading && data && <div className="absolute inset-0 flex items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
       </div>
+      <FullscreenDialog
+        open={expanded}
+        onOpenChange={setExpanded}
+        title={widget.title}
+        description={ownRange ? `${widget.config.dateRange.startDate} to ${widget.config.dateRange.endDate}` : undefined}
+      >
+        {expanded && (error
+          ? <div className="flex h-full items-center justify-center text-sm text-destructive">{error}</div>
+          : <ReportChart chartType={widget.chartType} data={data} height="100%" />)}
+      </FullscreenDialog>
     </Card>
   );
 }

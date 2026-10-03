@@ -28,8 +28,8 @@ function KpiValue({ series, height }) {
   const change = changeFrom(series.total, series.previousTotal);
   const ChangeIcon = change > 0 ? TrendingUp : TrendingDown;
   return (
-    <div className="flex flex-col items-center justify-center gap-0.5 overflow-hidden text-center" style={{ height }} title={series.label}>
-      <div className="max-w-full truncate text-xl font-semibold tabular-nums tracking-tight">{formatValue(series.total, series.unit)}</div>
+    <div className="flex flex-col items-center justify-center gap-0.5 [container-type:size] overflow-hidden text-center" style={{ height }} title={series.label}>
+      <div className="max-w-full truncate text-xl font-semibold tabular-nums tracking-tight [@container(min-height:240px)]:text-6xl">{formatValue(series.total, series.unit)}</div>
       {change !== null && (
         <div className={`flex items-center gap-1 text-[11px] font-medium ${change > 0 ? 'text-emerald-600 dark:text-emerald-400' : change < 0 ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
           {change !== 0 && <ChangeIcon className="h-3.5 w-3.5" />}
