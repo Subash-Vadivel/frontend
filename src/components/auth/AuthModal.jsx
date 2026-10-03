@@ -28,8 +28,9 @@ const inviteTokenFrom = (location) => location.state?.from?.pathname?.match(/^\/
 export default function AuthModal({ mode, onClose, onModeChange, onSuccess }) {
   const { login } = useAuth();
   const location = useLocation();
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ name: '', email: '', password: '' });
+  // The invite page passes the invited email so the user doesn't have to retype it.
+  const [loginForm, setLoginForm] = useState({ email: location.state?.email || '', password: '' });
+  const [signupForm, setSignupForm] = useState({ name: '', email: location.state?.email || '', password: '' });
   const [forgotEmail, setForgotEmail] = useState('');
   // null | { kind: 'verify', email, remaining, fromLogin } | { kind: 'forgot' }
   const [screen, setScreen] = useState(null);
