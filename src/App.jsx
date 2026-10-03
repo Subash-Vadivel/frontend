@@ -11,6 +11,7 @@ import InvitationAcceptPage from './pages/InvitationAcceptPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import McpPage from './pages/McpPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 import VerifyEmailPage from './pages/VerifyEmailPage.jsx';
 
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/categories" element={<CategoryPage />} />
           <Route path="/mcp" element={<McpPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -77,6 +77,8 @@ export function BusinessProvider({ children }) {
   const canWriteFinance = ['owner', 'admin', 'manager'].includes(role);
   const canManageUsers = ['owner', 'admin'].includes(role);
   const canManageMcp = ['owner', 'admin'].includes(role);
+  const canManageSettings = ['owner', 'admin'].includes(role);
+  const isOwner = role === 'owner';
   const isViewer = role === 'viewer';
 
   const value = useMemo(() => ({
@@ -87,13 +89,15 @@ export function BusinessProvider({ children }) {
     canWriteFinance,
     canManageUsers,
     canManageMcp,
+    canManageSettings,
+    isOwner,
     isViewer,
     loading,
     error,
     refreshBusinesses,
     selectBusiness,
     createBusiness,
-  }), [businesses, selectedBusiness, selectedBusinessId, role, canWriteFinance, canManageUsers, canManageMcp, isViewer, loading, error, refreshBusinesses, selectBusiness, createBusiness]);
+  }), [businesses, selectedBusiness, selectedBusinessId, role, canWriteFinance, canManageUsers, canManageMcp, canManageSettings, isOwner, isViewer, loading, error, refreshBusinesses, selectBusiness, createBusiness]);
 
   return <BusinessContext.Provider value={value}>{children}</BusinessContext.Provider>;
 }

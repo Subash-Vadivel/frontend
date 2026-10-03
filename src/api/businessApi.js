@@ -41,3 +41,17 @@ export const acceptInvitation = async (token) => {
   const { data } = await axiosClient.post(`/invitations/${token}/accept`);
   return data;
 };
+
+export const updateBusiness = async (businessId, payload) => {
+  const { data } = await axiosClient.patch(`/businesses/${businessId}`, payload);
+  return data;
+};
+
+export const sendBusinessDeleteCode = async (businessId) => {
+  const { data } = await axiosClient.post(`/businesses/${businessId}/delete-code`);
+  return data;
+};
+
+export const deleteBusiness = async (businessId, code) => {
+  await axiosClient.delete(`/businesses/${businessId}`, { data: { code } });
+};

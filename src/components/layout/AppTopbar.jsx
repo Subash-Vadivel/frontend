@@ -17,6 +17,7 @@ const pageNames = {
   '/categories': 'Categories',
   '/mcp': 'MCP',
   '/users': 'Users',
+  '/settings': 'Settings',
 };
 
 export default function AppTopbar({ onMenuClick }) {
