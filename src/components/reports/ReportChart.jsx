@@ -40,6 +40,11 @@ function KpiValue({ series, height }) {
   );
 }
 
+// Small widgets get a one-line legend with small text so it doesn't crowd out the chart.
+const legendProps = (theme, compact, extra = {}) => (compact
+  ? { iconSize: 8, wrapperStyle: { color: theme.axis, fontSize: 10, lineHeight: '14px', maxHeight: 16, overflow: 'hidden', whiteSpace: 'nowrap', paddingTop: 2 } }
+  : { wrapperStyle: { color: theme.axis, fontSize: 12, ...extra } });
+
 export default function ReportChart({ chartType, data, height = 280, compact = false }) {
   const theme = useChartTheme();
   const colors = theme.palette.filter(Boolean);
@@ -70,7 +75,7 @@ export default function ReportChart({ chartType, data, height = 280, compact = f
             {slices.map((slice) => <Cell key={slice.id} fill={slice.color} />)}
           </Pie>
           <Tooltip contentStyle={tooltipStyle} formatter={(value, name, item) => [formatValue(value, item.payload.unit), name]} />
-          {!compact && <Legend wrapperStyle={{ color: theme.axis, fontSize: 12 }} />}
+          <Legend {...legendProps(theme, compact)} />
         </PieChart>
       </ResponsiveContainer>
     );
@@ -100,7 +105,7 @@ export default function ReportChart({ chartType, data, height = 280, compact = f
         <YAxis yAxisId="left" tick={{ fill: theme.axis, fontSize: 11 }} tickFormatter={(value) => formatAxis(value, leftUnit)} tickLine={false} axisLine={false} width={64} />
         {rightUnit && <YAxis yAxisId="right" orientation="right" tick={{ fill: theme.axis, fontSize: 11 }} tickFormatter={(value) => formatAxis(value, rightUnit)} tickLine={false} axisLine={false} width={52} />}
         <Tooltip contentStyle={tooltipStyle} cursor={{ fill: theme.grid }} formatter={(value, name, item) => [formatValue(value, unitById[item.dataKey]), name]} />
-        {!compact && <Legend wrapperStyle={{ color: theme.axis, fontSize: 12, paddingTop: 6 }} />}
+        <Legend {...legendProps(theme, compact, { paddingTop: 6 })} />
         {marks}
       </Chart>
     </ResponsiveContainer>

@@ -14,7 +14,7 @@ import { INTERVALS, TOTAL_ONLY_TYPES, effectiveRange } from './reportUtils.js';
 
 // Must match the grid's dragConfig.handle in ReportDetailPage.
 export const DRAG_HANDLE_CLASS = 'widget-drag-handle';
-// At this height or smaller the legend would crowd out the chart, so it's hidden (tooltips still work).
+// At this height or smaller the chart uses a compact one-line legend.
 const COMPACT_MAX_ROWS = 3;
 
 export default function WidgetCard({ widget, reportRange, canEdit, canDrag, onEdit, onClone, onDelete }) {
