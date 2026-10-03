@@ -10,6 +10,8 @@ import IncomePage from './pages/IncomePage.jsx';
 import InvitationAcceptPage from './pages/InvitationAcceptPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import McpPage from './pages/McpPage.jsx';
+import ReportDetailPage from './pages/ReportDetailPage.jsx';
+import ReportsPage from './pages/ReportsPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
@@ -29,6 +31,8 @@ export default function App() {
         <Route path="/businesses/new" element={<BusinessCreatePage />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/reports/:reportId" element={<ReportDetailPage />} />
           <Route path="/income" element={<IncomePage />} />
           <Route path="/expenses" element={<ExpensePage />} />
           <Route path="/categories" element={<CategoryPage />} />

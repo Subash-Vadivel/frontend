@@ -12,6 +12,7 @@ import { APP_NAME } from '../../lib/brand.js';
 
 const pageNames = {
   '/dashboard': 'Dashboard',
+  '/reports': 'Reports',
   '/income': 'Income',
   '/expenses': 'Expenses',
   '/categories': 'Categories',
@@ -26,7 +27,7 @@ export default function AppTopbar({ onMenuClick }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [commandOpen, setCommandOpen] = useState(false);
-  const pageTitle = useMemo(() => pageNames[location.pathname] || APP_NAME, [location.pathname]);
+  const pageTitle = useMemo(() => pageNames[location.pathname] || (location.pathname.startsWith('/reports/') ? 'Report' : APP_NAME), [location.pathname]);
   const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
   useEffect(() => {
     const handler = (event) => {

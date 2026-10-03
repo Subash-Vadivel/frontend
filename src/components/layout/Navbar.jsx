@@ -1,4 +1,4 @@
-import { BarChart3, ChevronsLeftRight, FolderTree, KeyRound, LogOut, ReceiptText, Settings, Users, WalletCards, X } from 'lucide-react';
+import { BarChart3, ChartNoAxesCombined, ChevronsLeftRight, FolderTree, KeyRound, LogOut, ReceiptText, Settings, Users, WalletCards, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -17,7 +17,7 @@ export default function Navbar({ mobileOpen = false, onMobileOpenChange = () => 
   const [collapsed, setCollapsed] = useState(false);
   const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
   const groups = useMemo(() => [
-    { label: 'Workspace', links: [{ to: '/dashboard', label: 'Dashboard', icon: BarChart3 }] },
+    { label: 'Workspace', links: [{ to: '/dashboard', label: 'Dashboard', icon: BarChart3 }, { to: '/reports', label: 'Reports', icon: ChartNoAxesCombined }] },
     { label: 'Ledgers', links: [{ to: '/income', label: 'Income', icon: WalletCards }, { to: '/expenses', label: 'Expenses', icon: ReceiptText }] },
     { label: 'System', links: [
       { to: '/categories', label: 'Categories', icon: FolderTree },
