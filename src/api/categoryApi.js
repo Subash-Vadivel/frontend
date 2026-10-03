@@ -28,3 +28,7 @@ export const listAllCategories = async (type) => {
     offset = page.nextOffset;
   }
 };
+
+export const deleteCategory = async (categoryId) => {
+  await axiosClient.delete(`/categories/${categoryId}`);
+};
